@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 const Dashboard: React.FC = () => {
-  const [profileExpanded, setProfileExpanded] = useState(true);
+  const [profileExpanded, setProfileExpanded] = useState(false);
 
   const StatCard: React.FC<{
     title: string;
@@ -148,19 +148,19 @@ const Dashboard: React.FC = () => {
             title="Daily Profit"
             value="$0.00"
             icon={<TrendingUp className="w-6 h-6 text-black" />}
-            gradient="from-green-400 to-emerald-500"
+            gradient="from-yellow-400 to-amber-500"
           />
           <StatCard
             title="Partners"
             value="0"
             icon={<Users className="w-6 h-6 text-black" />}
-            gradient="from-blue-400 to-cyan-500"
+            gradient="from-yellow-400 to-amber-500"
           />
           <StatCard
             title="Team Members"
             value="0"
             icon={<Users className="w-6 h-6 text-black" />}
-            gradient="from-purple-400 to-pink-500"
+            gradient="from-yellow-400 to-amber-500"
           />
         </div>
 

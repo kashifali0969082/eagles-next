@@ -4,22 +4,23 @@ import { Zap, Eye, EyeOff, Router } from "lucide-react";
 import { useAccount } from "wagmi";
 import { toast, ToastContainer } from "react-toastify";
 import { isUserExists } from "@/config/Method";
-import { useRouter } from 'next/navigation'; 
-
+import { useRouter } from "next/navigation";
+import { useAdressStore } from "@/store/userCounterStore";
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected, status } = useAccount();
-    const router = useRouter();
-  
-  console.log("pass", password,address);
+  const router = useRouter();
+  const setAddress = useAdressStore((state) => state.setAddress);
+
+  console.log("pass", password, address);
   useEffect(() => {
     if (isConnected) {
       setPassword(address as string);
     }
-  }, [isConnected,address]);
+  }, [isConnected, address]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -28,17 +29,22 @@ const LoginPage: React.FC = () => {
       setIsLoading(false);
       return;
     }
-    let val = await isUserExists(password as string);
-    console.log("val",val);
-    
-    if (isConnected && val===true) {
-      router.push("/dashboard")
+    if (address !== password) {
+      toast("Connect with same wallet adress!");
+      setIsLoading(false);
+      return;
     }
-    else{
-toast("Account not registered")
-     setTimeout(() => {
-  router.push("/register");
-}, 2000);
+    let val = await isUserExists(password as string);
+    if (isConnected && val === true) {
+      setAddress(password);
+      setTimeout(()=>{
+        router.push("/dashboard");
+      },2000);
+    } else {
+      toast("Account not registered");
+      setTimeout(() => {
+        router.push("/register");
+      }, 2000);
     }
     setIsLoading(false);
   };
@@ -114,7 +120,7 @@ toast("Account not registered")
                 Don't have an account?{" "}
                 <a
                   className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors duration-200"
-                  onClick={()=>router.push('/register')}
+                  onClick={() => router.push("/register")}
                 >
                   Register
                 </a>

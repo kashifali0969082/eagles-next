@@ -1,8 +1,37 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Zap } from "lucide-react";
 import { YourApp } from "./custombtn";
-
+import { useAccount } from "wagmi";
+import { isUserExists } from "@/config/Method";
+import { useAdressStore } from "@/store/userCounterStore";
 export const Header: React.FC = () => {
+  const { address } = useAccount();
+  const setAdress = useAdressStore((state) => state.setAddress);
+  useEffect(() => {
+    const checkUser = async () => {
+      const x = await exsistfun();
+      if (x === true) {
+        setAdress(address as string);
+      } else {
+        setAdress("");
+      }
+    };
+
+    if (address) {
+      checkUser();
+    }
+  }, [address]);
+
+  const exsistfun = async () => {
+    try {
+      const val = await isUserExists(address as string);
+      return val;
+    } catch (error) {
+      console.log("error while getting user existence", error);
+      return false;
+    }
+  };
+
   return (
     <header className="relative z-50 bg-gradient-to-r from-black/80 to-gray-900/80 backdrop-blur-lg border-b border-yellow-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,9 +45,6 @@ export const Header: React.FC = () => {
             </h1>
           </div>
           <YourApp />
-          {/* <button className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-black px-3 py-2 sm:px-6 sm:py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-yellow-500/25 text-xs sm:text-sm">
-            Connect
-          </button> */}
         </div>
       </div>
     </header>
