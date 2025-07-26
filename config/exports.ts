@@ -1,4 +1,3 @@
-export const ApiUrl = "https://reffaralmoney.com";
 export const USDTContractAdress = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
 
 export const ContractAdress = "0x642AB313aa8A26Ca0487D1C7C85e3652c5763541"; //mainnet X1 X2
@@ -312,6 +311,5 @@ export const USDTTestNetABI = [
     type: "function",
   },
 ];
-
-
+export const ApiUrl="http://localhost:5000"
 export const usdtdecimals =1000000;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserProfile } from "../components/userprofile";
 import { ProfileModal } from "../components/profileModeal";
 import { StatsGrid } from "../components/StatsGrid";
@@ -7,13 +7,41 @@ import { LevelProgress } from "../components/levelProgress";
 import { PlatformStatistics } from "../components/staticcomponent";
 import { ContractInformation } from "../components/contactInfor";
 import { TransactionHistory } from "../components/Transaction-Info";
+import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
+import { useAdressStore } from "@/store/userCounterStore";
+import { useProfileStore } from "@/store/userCounterStore";
 
 // Main Dashboard Component
 const Dashboard: React.FC = () => {
   const [profileExpanded, setProfileExpanded] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const currentAddress = useAdressStore.getState().address;
+  const { address, isConnected, isDisconnected } = useAccount();
+  const router = useRouter();
+const formData= {
+        id: "",
+        name: "",
+        email: "",
+        description: "",
+        walletAddress: "",
+        profileImage: "",
+        socialLinks: {
+          facebook:  "",
+          youtube:  "",
+          instagram: "",
+          twitter:  "",
+          whatsapp: "",
+        },
+      };
 
+  useEffect(() => {
+    if (isDisconnected || address != currentAddress) {
+              useProfileStore.getState().setProfile(formData);
+      router.push("login");
+    }
+  }, [isDisconnected, address]);
   const handleSaveProfile = (profileData: any) => {
     setUserProfile(profileData);
     // Here you would typically save to your backend/database
@@ -34,7 +62,6 @@ const Dashboard: React.FC = () => {
           profileExpanded={profileExpanded}
           setProfileExpanded={setProfileExpanded}
           onEditProfile={() => setIsProfileModalOpen(true)}
-          userProfile={userProfile}
         />
 
         {/* Stats Grid - Responsive */}

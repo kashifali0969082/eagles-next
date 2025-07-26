@@ -6,16 +6,31 @@ import { toast, ToastContainer } from "react-toastify";
 import { isUserExists } from "@/config/Method";
 import { useRouter } from "next/navigation";
 import { useAdressStore } from "@/store/userCounterStore";
+import axios from "axios";
+import { ApiUrl } from "@/config/exports";
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { address, isConnected, status } = useAccount();
+  const { address, isConnected } = useAccount();
+  const [LoginSuccess, setLoginSuccess] = useState(false);
   const router = useRouter();
   const setAddress = useAdressStore((state) => state.setAddress);
+  // useEffect(() => {
+  //   GettingProfileApi();
+  // }, []);
+  // const GettingProfileApi = async () => {
+  //   try {
+  //     let resp = await axios.get(
+  //       `${ApiUrl}/user/profile/0x36c59a95Bbe5E2Beac4DAc8dabc06632d7b6F824`
+  //     );
+  //     console.log("profile resp ", resp);
+  //   } catch (error) {
+  //     toast.error("error while Geeting Profile");
+  //   }
+  // };
 
-  console.log("pass", password, address);
   useEffect(() => {
     if (isConnected) {
       setPassword(address as string);
@@ -37,16 +52,19 @@ const LoginPage: React.FC = () => {
     let val = await isUserExists(password as string);
     if (isConnected && val === true) {
       setAddress(password);
-      setTimeout(()=>{
+      setTimeout(() => {
         router.push("/dashboard");
-      },2000);
+            setIsLoading(false);
+
+      }, 2000);
     } else {
       toast("Account not registered");
       setTimeout(() => {
         router.push("/register");
+            setIsLoading(false);
       }, 2000);
     }
-    setIsLoading(false);
+    // setIsLoading(false);
   };
 
   return (

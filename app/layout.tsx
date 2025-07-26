@@ -9,6 +9,7 @@ import nextDynamic from "next/dynamic"; // Rename the import
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { StarField } from "./components/Stars";
+import { ToastContainer } from "react-toastify";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
           <StarField/>
           <Header />
           {children}
+        
           <Footer />
         </ClientProviders>
       </body>

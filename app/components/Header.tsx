@@ -2,35 +2,8 @@ import React, { useEffect } from "react";
 import { Zap } from "lucide-react";
 import { YourApp } from "./custombtn";
 import { useAccount } from "wagmi";
-import { isUserExists } from "@/config/Method";
-import { useAdressStore } from "@/store/userCounterStore";
 export const Header: React.FC = () => {
   const { address } = useAccount();
-  const setAdress = useAdressStore((state) => state.setAddress);
-  useEffect(() => {
-    const checkUser = async () => {
-      const x = await exsistfun();
-      if (x === true) {
-        setAdress(address as string);
-      } else {
-        setAdress("");
-      }
-    };
-
-    if (address) {
-      checkUser();
-    }
-  }, [address]);
-
-  const exsistfun = async () => {
-    try {
-      const val = await isUserExists(address as string);
-      return val;
-    } catch (error) {
-      console.log("error while getting user existence", error);
-      return false;
-    }
-  };
 
   return (
     <header className="relative z-50 bg-gradient-to-r from-black/80 to-gray-900/80 backdrop-blur-lg border-b border-yellow-500/20">

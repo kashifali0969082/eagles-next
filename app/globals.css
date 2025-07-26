@@ -39,3 +39,11 @@ body {
 .Toastify__close-button:hover {
   color: #fde047 !important; /* yellow-300 on hover */
 }
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
