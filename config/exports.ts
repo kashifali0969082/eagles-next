@@ -311,5 +311,7 @@ export const USDTTestNetABI = [
     type: "function",
   },
 ];
-export const ApiUrl="http://localhost:5000"
+// export const ApiUrl="http://localhost:5000"
+export const ApiUrl = "https://reffaralmoney.com";
+
 export const usdtdecimals =1000000;
