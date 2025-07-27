@@ -66,17 +66,6 @@ const formData= {
 
         {/* Stats Grid - Responsive */}
         <StatsGrid />
-
-        {/* Mobile Quick Actions - Only on mobile */}
-        <div className="grid grid-cols-2 gap-3 mb-4 lg:hidden">
-          <button className="bg-gradient-to-r from-teal-600 to-cyan-700 text-white py-2 px-3 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105">
-            Upgrade X1
-          </button>
-          <button className="bg-gradient-to-r from-emerald-600 to-green-700 text-white py-2 px-3 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105">
-            Upgrade X2
-          </button>
-        </div>
-
         {/* Mobile Platform Stats - Only on mobile */}
         <div className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-lg border border-yellow-500/20 rounded-lg p-3 mb-4 lg:hidden">
           <h4 className="text-sm font-bold text-white mb-2 text-center">
