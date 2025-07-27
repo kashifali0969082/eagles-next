@@ -4,7 +4,7 @@ import { HiOutlineArrowPath, HiSparkles, HiTrophy, HiLightBulb } from 'react-ico
 import { GoPeople, GoRocket } from 'react-icons/go';
 import { RiLockLine, RiStarFill } from 'react-icons/ri';
 import { FiTarget, FiTrendingUp, FiAward } from 'react-icons/fi';
-import ParticleBackground from '../components/particlex2';
+import ParticleBackground from '../components/particle';
 // Types and Interfaces
 interface UserData {
   id: string;

@@ -39,6 +39,8 @@ interface ProfileData {
   description:string;
   profileImage: string;
   socialLinks: SocialLinks;
+  email:string
+  walletAddress:string
 }
 
 interface ProfileState {
@@ -53,6 +55,8 @@ export const useProfileStore = create<ProfileState>((set) => ({
     name: "",
     profileImage: "",
     description:"",
+    email:"",
+    walletAddress:"",
         socialLinks: {
       facebook: "",
       youtube: "",

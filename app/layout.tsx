@@ -2,7 +2,7 @@
 "use client";
 
 export const dynamic = "force-dynamic"; // Keep this export
-import ClientProviders from "./ClientProvider";
+// import ClientProviders from "./ClientProvider";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import nextDynamic from "next/dynamic"; // Rename the import
