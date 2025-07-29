@@ -6,7 +6,7 @@ import {
   tokenPocketWallet,
   walletConnectWallet,
   metaMaskWallet,
-  // trustWallet,
+  trustWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
@@ -18,7 +18,7 @@ const connectors = connectorsForWallets(
   [
     {
       groupName: "Recommended",
-      wallets: [walletConnectWallet, metaMaskWallet, tokenPocketWallet],
+      wallets: [trustWallet,walletConnectWallet, metaMaskWallet, tokenPocketWallet],
     },
   ],
   {
