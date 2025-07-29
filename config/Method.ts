@@ -1,11 +1,16 @@
 import { readContract, writeContract } from "@wagmi/core";
 // import { useWatchContractEvent } from "wagmi";
+import { config } from "./config";
 import {
-  config,
-} from "./config";
-import { ContractAdress,ABI,USDTContractAdress,USDTTestNetABI } from "./exports";
+  ContractAdress,
+  ABI,
+  USDTContractAdress,
+  USDTTestNetABI,
+  X3DiamondAbi,
+  X3DiamondAddress,
+} from "./exports";
 import { waitForTransactionReceipt } from "wagmi/actions";
-export const getTxn = async (hash:any) => {
+export const getTxn = async (hash: any) => {
   try {
     if (!hash) {
       return null;
@@ -21,9 +26,8 @@ export const getTxn = async (hash:any) => {
   }
 };
 
-
 // ReadMethods
-export const isUserExists = async (address:string) => {
+export const isUserExists = async (address: string) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
@@ -33,7 +37,9 @@ export const isUserExists = async (address:string) => {
   return result;
 };
 
-export const getIdToAddress = async (id :string) => {
+export const getIdToAddress = async (id: string) => {
+  console.log("id too search",id);
+  
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
@@ -43,7 +49,7 @@ export const getIdToAddress = async (id :string) => {
   return result;
 };
 
-export const USDTapprove = async (amount:string) => {
+export const USDTapprove = async (amount: string) => {
   const result = await writeContract(config, {
     abi: USDTTestNetABI,
     address: USDTContractAdress,
@@ -53,7 +59,7 @@ export const USDTapprove = async (amount:string) => {
   return result;
 };
 
-export const register = async (address:string) => {
+export const register = async (address: string) => {
   const result = await writeContract(config, {
     abi: ABI,
     address: ContractAdress,
@@ -62,3 +68,68 @@ export const register = async (address:string) => {
   });
   return result;
 };
+
+// X3 functions
+
+export const X3activateLevel = async (level: string) => {
+  const result = await writeContract(config, {
+    abi: X3DiamondAbi,
+    address: X3DiamondAddress,
+    functionName: "upgradeX3Level",
+    args: [level],
+  });
+  return result;
+};
+
+export const X3getSlotsFilled = async (add:string,level:string,matrix:string) => {
+  const result = await readContract(config, {
+    abi: X3DiamondAbi,
+    address: X3DiamondAddress,
+    functionName: "getSlotsFilled",
+    args: [add,matrix, level],
+  });
+  return result;
+};
+
+export const X3isLocked = async (add:string,level:string) => {
+  const result = await readContract(config, {
+    abi: X3DiamondAbi,
+    address: X3DiamondAddress,
+    functionName: "isLocked",
+    args: [add,level],
+  });
+  return result;
+};
+
+export const X3register = async () => {
+  const result = await writeContract(config, {
+    abi: X3DiamondAbi,
+    address: X3DiamondAddress,
+    functionName: "register",
+  });
+  return result;
+};
+export const X3USDTapprove = async (amount:number) => {
+  let val = amount * 1000000000000000000; // USDT has 18 decimals
+  const result = await writeContract(config, {
+    abi: USDTTestNetABI,
+    address: USDTContractAdress,
+    functionName: "approve",
+    args: [X3DiamondAddress, val],
+  });
+  return result;
+};
+
+
+export const X3Users = async (address:string) => {
+  const result = await readContract(config, {
+    abi: X3DiamondAbi,
+    address: X3DiamondAddress,
+    functionName: "users",
+    args: [address],
+  });
+  console.log("X3 ", address, " : ", result);
+
+  return result;
+};
+
