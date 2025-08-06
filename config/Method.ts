@@ -68,6 +68,29 @@ export const register = async (address: string) => {
   });
   return result;
 };
+export const users = async (address:string) => {
+  const result = await readContract(config, {
+    abi: ABI,
+    address: ContractAdress,
+    functionName: "users",
+    args: [address],
+  });
+  return result;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // X3 functions
 

@@ -90,3 +90,14 @@ export const Refresherfun = create<ProfileRefresher>((set) => ({
   refresh: false,
   setRefresh: (value) => set({ refresh: value }),
 }));
+
+//upliner store
+interface UplinerStore {
+  uplinerId: string;
+  setUplinerId: (id: string) => void;
+}
+
+export const useUplinerStore = create<UplinerStore>((set) => ({
+  uplinerId: '',
+  setUplinerId: (id: string) => set({ uplinerId: id }),
+}));

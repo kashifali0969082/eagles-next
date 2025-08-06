@@ -1,6 +1,5 @@
 export const USDTContractAdress = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
-
-export const ContractAdress = "0x642AB313aa8A26Ca0487D1C7C85e3652c5763541"; //mainnet X1 X2
+export const ContractAdress = "0x7306df3dFAE6f351a33E6dB230f6D957E6aE7423"; //mainnet X1 X2
 
 export const ABI = [
   {
@@ -9,6 +8,15 @@ export const ABI = [
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  { inputs: [], name: "AccessControlBadConfirmation", type: "error" },
+  {
+    inputs: [
+      { internalType: "address", name: "account", type: "address" },
+      { internalType: "bytes32", name: "neededRole", type: "bytes32" },
+    ],
+    name: "AccessControlUnauthorizedAccount",
+    type: "error",
   },
   {
     inputs: [{ internalType: "address", name: "owner", type: "address" }],
@@ -85,6 +93,92 @@ export const ABI = [
     anonymous: false,
     inputs: [
       { indexed: true, internalType: "address", name: "user", type: "address" },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "paymentType",
+        type: "string",
+      },
+    ],
+    name: "PaymentRecorded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "bytes32", name: "role", type: "bytes32" },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousAdminRole",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newAdminRole",
+        type: "bytes32",
+      },
+    ],
+    name: "RoleAdminChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "bytes32", name: "role", type: "bytes32" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleGranted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "bytes32", name: "role", type: "bytes32" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleRevoked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "user", type: "address" },
       { indexed: false, internalType: "uint8", name: "matrix", type: "uint8" },
       {
         indexed: false,
@@ -107,6 +201,20 @@ export const ABI = [
     inputs: [
       { indexed: true, internalType: "address", name: "user", type: "address" },
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "newTeamCount",
+        type: "uint256",
+      },
+    ],
+    name: "TeamCountUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "user", type: "address" },
+      {
         indexed: true,
         internalType: "address",
         name: "referrer",
@@ -116,6 +224,20 @@ export const ABI = [
     ],
     name: "UserRegistered",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "DATA_TRANSFER_ROLE",
+    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "DEFAULT_ADMIN_ROLE",
+    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -161,6 +283,66 @@ export const ABI = [
   },
   {
     inputs: [
+      { internalType: "address[]", name: "arr1", type: "address[]" },
+      { internalType: "address[]", name: "arr2", type: "address[]" },
+    ],
+    name: "concatArrays",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "get24HourDirects",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "get24HourPayment",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "get24HourTeamCount",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getData",
+    outputs: [
+      { internalType: "uint256", name: "_LAST_LEVEL", type: "uint256" },
+      { internalType: "uint256", name: "_LEVEL_1_PRICE", type: "uint256" },
+      {
+        internalType: "address",
+        name: "_systemRecipentAddress",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "userAddress", type: "address" }],
+    name: "getPartners",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "bytes32", name: "role", type: "bytes32" }],
+    name: "getRoleAdmin",
+    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
       { internalType: "address", name: "user", type: "address" },
       { internalType: "uint8", name: "matrix", type: "uint8" },
       { internalType: "uint256", name: "level", type: "uint256" },
@@ -170,6 +352,49 @@ export const ABI = [
       { internalType: "uint256", name: "_solts", type: "uint256" },
       { internalType: "uint256", name: "_recicle", type: "uint256" },
     ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "userAddress", type: "address" }],
+    name: "getTeam",
+    outputs: [
+      { internalType: "address[]", name: "userTeam", type: "address[]" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "getTotalDirects",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "getTotalTeamCount",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes32", name: "role", type: "bytes32" },
+      { internalType: "address", name: "account", type: "address" },
+    ],
+    name: "grantRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes32", name: "role", type: "bytes32" },
+      { internalType: "address", name: "account", type: "address" },
+    ],
+    name: "hasRole",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
     stateMutability: "view",
     type: "function",
   },
@@ -234,10 +459,64 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [
+      { internalType: "bytes32", name: "role", type: "bytes32" },
+      { internalType: "address", name: "callerConfirmation", type: "address" },
+    ],
+    name: "renounceRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "newId", type: "uint256" }],
+    name: "revertData",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes32", name: "role", type: "bytes32" },
+      { internalType: "address", name: "account", type: "address" },
+    ],
+    name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "setConstructorData",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "bytes4", name: "interfaceId", type: "bytes4" }],
+    name: "supportsInterface",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "systemRecipentAddress",
     outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address[]", name: "_refrers", type: "address[]" },
+      { internalType: "address[]", name: "_users", type: "address[]" },
+      { internalType: "uint256[]", name: "levelX1s", type: "uint256[]" },
+      { internalType: "uint256[]", name: "levelX2s", type: "uint256[]" },
+      { internalType: "uint256[]", name: "_usdtRecieveds", type: "uint256[]" },
+    ],
+    name: "transferData",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -279,6 +558,13 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "updateUnequalSlots",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "address", name: "", type: "address" }],
     name: "users",
     outputs: [
@@ -287,6 +573,8 @@ export const ABI = [
       { internalType: "uint256", name: "currentX1Level", type: "uint256" },
       { internalType: "uint256", name: "currentX2Level", type: "uint256" },
       { internalType: "uint256", name: "totalUSDTReceived", type: "uint256" },
+      { internalType: "uint256", name: "totalDirects", type: "uint256" },
+      { internalType: "uint256", name: "totalTeamCount", type: "uint256" },
     ],
     stateMutability: "view",
     type: "function",
@@ -311,12 +599,12 @@ export const USDTTestNetABI = [
     type: "function",
   },
 ];
-export const ApiUrl="http://localhost:5000"
+export const ApiUrl = "http://localhost:5000";
 // export const ApiUrl = "https://reffaralmoney.com";
 
 export const usdtdecimals = 1000000;
 
-export const X3DiamondAddress = "0x017d61DE5Cd3F2AFB90066F760C26C3136b95Cf2";
+export const X3DiamondAddress = "0x1b8d42c1Dc2C895eDe95c77dA99Ff9f2E4F0c0DD"; //testnet
 export const X3DiamondAbi = [
   {
     inputs: [

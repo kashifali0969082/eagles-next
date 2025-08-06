@@ -69,10 +69,10 @@ const userProfile=useProfileStore.getState().profile
             
             <div className="flex-1 text-center sm:text-left">
               <h3 className="text-3xl font-bold text-white mb-2">
-                {userProfile?.name || "Tester Dev"}
+                {userProfile?.name || "Name"}
               </h3>
               <p className="text-yellow-400 font-semibold text-lg mb-1">
-                ID: {userProfile?.id || "4679"}
+                ID: {userProfile?.id || "0"}
               </p>
               <p className="text-gray-400">Joined by ID: 1</p>
             </div>
@@ -129,10 +129,10 @@ const userProfile=useProfileStore.getState().profile
             <h4 className="text-yellow-400 font-semibold mb-3">Personal Referral Link</h4>
             <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
               <span className="text-yellow-400 font-mono text-sm flex-1 break-all">
-                theeagles.io/{userProfile?.id || "4679"}
+                theeagles.io/{userProfile?.id || "0"}
               </span>
               <button
-                onClick={() => handleCopyToClipboard(`theeagles.io/${userProfile?.id || "4679"}`)}
+                onClick={() => handleCopyToClipboard(`theeagles.io/${userProfile?.id || "0"}`)}
                 className="text-gray-400 hover:text-yellow-400 transition-colors flex-shrink-0"
               >
                 <Copy className="w-4 h-4" />
@@ -214,10 +214,10 @@ console.log("data",userProfile);
                 className="text-2xl font-bold text-white cursor-pointer hover:text-yellow-400 transition-colors"
                 onClick={handleNameClick}
               >
-                {userProfile?.name || "Tester Dev"}
+                {userProfile?.name || "Name"}
               </h2>
               <p className="text-yellow-400 font-semibold">
-                ID: {userProfile?.id || "4679"}
+                ID: {userProfile?.id || "0mk"}
               </p>
             </div>
           </div>
@@ -251,10 +251,10 @@ console.log("data",userProfile);
               <p className="text-gray-300 text-sm mb-2">Personal Referral Link</p>
               <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
                 <span className="text-yellow-400 font-mono text-sm flex-1">
-                  theeagles.io/{userProfile?.id || "4679"}
+                  theeagles.io/{userProfile?.id || "0"}
                 </span>
                 <button 
-                  onClick={() => handleCopyToClipboard(`theeagles.io/${userProfile?.id || "4679"}`)}
+                  onClick={() => handleCopyToClipboard(`theeagles.io/${userProfile?.id || "0"}`)}
                   className="text-gray-400 hover:text-yellow-400 transition-colors"
                 >
                   <Copy className="w-4 h-4" />
