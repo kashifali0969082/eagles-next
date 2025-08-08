@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Zap } from "lucide-react";
 import { YourApp } from "./custombtn";
 import { useAccount } from "wagmi";
+import { useUplinerStore, useAdressStore } from "@/store/userCounterStore";
+import { useRouter } from "next/navigation";
+import { current } from "@reduxjs/toolkit";
+
 // import { io, Socket } from "socket.io-client";
 // import { useSocket } from "./hooks/useSocket";
 interface Notification {
@@ -11,30 +15,29 @@ interface Notification {
   createdAt: string;
 }
 
-
 export const Header: React.FC = () => {
-  // const { address,isConnected } = useAccount();
+  const { address,isConnected } = useAccount();
   // const { connect, disconnect, getSocket } = useSocket()
   // const socket = io('http://localhost:5000');
+  const router = useRouter();
 
-
-// socket connection
+  // socket connection
   //  useEffect(() => {
   //   if (isConnected ||address) {
-      
+
   //     socket.on('connect', () => {
   //       console.log('✅ Socket connected:', socket.id);
   //       socket.emit('init_address', "0x3E1BD75C255759D4D973117f76E90F492DbE5a9a");
   //     });
-      
+
   //     socket.on('all_entries', (data) => {
   //       console.log('📦 Initial entries:', data);
   //     });
-      
+
   //     socket.on('new_entries', (data) => {
   //       console.log('🆕 New entries received:', data);
   //     });
-      
+
   //   }
   //   else{
 
@@ -43,11 +46,14 @@ export const Header: React.FC = () => {
   //     }
   //   };
   // }, [address,isConnected]);
-
-
-
-
+  const currentAddress = useAdressStore.getState().address;
+useEffect(()=>{
+  console.log("use effect chala",currentAddress,address);
+if(currentAddress!=address){
   
+  router.push("/login")
+}
+},[address])
   return (
     <header className="relative z-50 bg-gradient-to-r from-black/80 to-gray-900/80 backdrop-blur-lg border-b border-yellow-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

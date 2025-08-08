@@ -1,44 +1,42 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { HiOutlineArrowPath, HiSparkles, HiTrophy, HiLightBulb } from 'react-icons/hi2';
-import { GoPeople, GoRocket } from 'react-icons/go';
-import { RiLockLine, RiStarFill } from 'react-icons/ri';
-import { FiTarget, FiTrendingUp, FiAward } from 'react-icons/fi';
-import ParticleBackground from '../components/particle';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  HiOutlineArrowPath,
+  HiSparkles,
+  HiTrophy,
+  HiLightBulb,
+} from "react-icons/hi2";
+import { FaStop } from "react-icons/fa";
 
+import { GoPeople, GoRocket } from "react-icons/go";
+import { RiLockLine, RiStarFill } from "react-icons/ri";
+import { FiTarget, FiTrendingUp, FiAward } from "react-icons/fi";
+import ParticleBackground from "../components/particle";
+import { getSlotFilled } from "@/config/Method";
+import { useAdressStore, useUserId, useUserLevels, useX1LevelStore } from "@/store/userCounterStore";
+import { usdtdecimals } from "@/config/exports";
+import { USDTapprove,getTxn,activateLevel, } from "@/config/Method";
 // Types and Interfaces
 interface UserData {
   id: string;
   totalReferrals: number;
   totalEarnings: number;
   recycleCount: number;
+  name :string;
 }
-
 interface Level {
   level: number;
   cost: number;
   slots: [number, number]; // [filled, recycled]
   maxUsers: number;
   recycleCount: number;
+  name:string;
+  locked:boolean;
 }
-
-interface StatsCardProps {
-  icon: React.ElementType;
-  label: string;
-  value: string | number;
-  trend?: number;
-}
-
 interface ProgressBarProps {
   progress: number;
   level: number;
 }
-
-interface ParticleProps {
-  index: number;
-  type: 'particle' | 'orb';
-}
-
 interface ApiData {
   referredUsers?: Array<{
     currentX1Level: number;
@@ -47,19 +45,16 @@ interface ApiData {
     currentX1Level: number;
   };
 }
-
 interface SlotsData {
   [key: string]: [number, number];
 }
-
 interface ReferredUsersCount {
   [level: number]: number;
 }
 
-// Progress Bar Component
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress, level }) => (
   <div className="w-full bg-gray-800 rounded-full h-2 mb-2">
-    <div 
+    <div
       className="bg-gradient-to-r from-teal-400 to-cyan-500 h-2 rounded-full transition-all duration-500 ease-out"
       style={{ width: `${Math.min(progress, 100)}%` }}
     />
@@ -68,59 +63,52 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, level }) => (
 
 // Main Component
 const Levelx1Enhanced: React.FC = () => {
-  // State with proper typing
-  const [activeLevel, setActiveLevel] = useState<number>(3);
+  // const [activeLevel, setActiveLevel] = useState<number>(2);
+  const currentAddress = useAdressStore.getState().address;
+  const userid=useUserId.getState().userIDper
   const [userData, setUserData] = useState<UserData>({
-    id: "12345",
+    id:userid ,
     totalReferrals: 24,
     totalEarnings: 1250.75,
-    recycleCount: 8
+    recycleCount: 8,
+    name:"dav",
   });
   const [showAnimation, setShowAnimation] = useState<boolean>(false);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [apiData, setApiData] = useState<ApiData | null>(null);
-  const [referredUsersCountByLevel, setReferredUsersCountByLevel] = useState<ReferredUsersCount>({});
+  const [referredUsersCountByLevel, setReferredUsersCountByLevel] =
+    useState<ReferredUsersCount>({});
   const [slotsData, setSlotsData] = useState<SlotsData>({});
+  const activeLevel = useUserLevels.getState().lvlX1;
+const setActiveLevel=useUserLevels((state)=>state.setLvlX1)
+const levels=useX1LevelStore.getState().levels;
 
-  // Level data with proper typing
-  const levels: Level[] = [
-    { level: 1, cost: 2.5, slots: [3, 1], maxUsers: 12, recycleCount: 3 },
-    { level: 2, cost: 5, slots: [4, 2], maxUsers: 16, recycleCount: 4 },
-    { level: 3, cost: 10, slots: [2, 1], maxUsers: 8, recycleCount: 2 },
-    { level: 4, cost: 20, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 5, cost: 40, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 6, cost: 80, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 7, cost: 160, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 8, cost: 320, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 9, cost: 640, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 10, cost: 1250, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 11, cost: 2500, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-    { level: 12, cost: 5000, slots: [0, 0], maxUsers: 0, recycleCount: 0 },
-  ];
+console.log("bool",levels);
 
   // Effect for fetching data (you can integrate your actual API calls here)
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        // Your existing fetchData logic here
-        // Example:
-        // const result = await users(address);
-        // const level = result[2]?.toString();
-        // setActiveLevel(Number(level));
-        
-        console.log('Fetching data...');
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   getEveryLevelData();
+  // }, []);
 
   // Handler functions with proper typing
-  const handleActivateLevel = async (level: number, cost: number): Promise<void> => {
+  const handleActivateLevel = async (
+    level: number,
+    cost: number
+  ): Promise<void> => {
     setShowAnimation(true);
     try {
+      console.log("activte level is working",level,cost);
+       const val = (cost * usdtdecimals).toString();
+      const usdtApp = await USDTapprove(val);
+      await getTxn(usdtApp);
+      const approvetx = await activateLevel('1', level.toString());
+      await getTxn(approvetx);
+  const newActive = activeLevel + 1;
+  setActiveLevel(newActive);
+
+  // ensure store updates: unlock up to the newly active level
+  useX1LevelStore.getState().unlockLevelsUpTo(newActive);  
+      // setActiveLevel((prevLevel) => Math.min(Number(prevLevel) + 1, 12));
       // Your activation logic here
       // Example:
       // const val = (cost * 1e18).toString();
@@ -128,11 +116,11 @@ const Levelx1Enhanced: React.FC = () => {
       // await getTxn(usdtApp);
       // const approvetx = await activateLevel('1', level.toString());
       // await getTxn(approvetx);
-      
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated delay
-      setActiveLevel(level);
+
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulated delay
+      // setActiveLevel(level);
     } catch (error) {
-      console.error('Error activating level:', error);
+      console.error("Error activating level:", error);
     } finally {
       setShowAnimation(false);
     }
@@ -148,7 +136,7 @@ const Levelx1Enhanced: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <ParticleBackground />
-      
+
       {/* Header Section */}
       <div className="relative z-10 p-6">
         <div className="bg-gradient-to-r from-teal-400 to-cyan-500 p-0.5 rounded-2xl mb-6">
@@ -164,15 +152,19 @@ const Levelx1Enhanced: React.FC = () => {
               </div>
               <div className="text-right">
                 <p className="text-teal-400 text-sm">Current Level</p>
-                <p className="text-3xl font-bold text-white">{activeLevel}/12</p>
+                <p className="text-3xl font-bold text-white">
+                  {activeLevel}/12
+                </p>
               </div>
             </div>
-            
+
             {/* Progress Bar */}
             <div className="mb-4">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-400">Overall Progress</span>
-                <span className="text-teal-400">{Math.round(overallProgress)}%</span>
+                <span className="text-teal-400">
+                  {Math.round(overallProgress)}%
+                </span>
               </div>
               <ProgressBar progress={overallProgress} level={activeLevel} />
             </div>
@@ -180,7 +172,7 @@ const Levelx1Enhanced: React.FC = () => {
         </div>
 
         {/* Levels Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {levels.map((level: Level) => {
             const isActive: boolean = level.level <= activeLevel;
             const isNextLevel: boolean = level.level === activeLevel + 1;
@@ -191,46 +183,113 @@ const Levelx1Enhanced: React.FC = () => {
               <div
                 key={level.level}
                 className={`relative rounded-2xl p-4 transition-all duration-300 cursor-pointer transform hover:scale-105 ${
-                  isActive 
-                    ? 'bg-gradient-to-br from-slate-900/60 to-gray-900/60 backdrop-blur border-2 border-teal-500 '   
+                  isActive
+                    ? "bg-gradient-to-br from-slate-900/60 to-gray-900/60 backdrop-blur border-2 border-teal-500 "
                     : isNextLevel
-                    ? 'bg-black/50 md:bg-black/80 backdrop-blur-sm md:backdrop-blur-none border-2 border-teal-400/50 shadow-lg shadow-teal-400/20'
-                    : 'bg-black/40 md:bg-black/70 backdrop-blur-sm md:backdrop-blur-none border border-gray-600'
-                } ${isSelected ? 'scale-105 shadow-xl shadow-teal-500/40' : ''}`}
+                    ? "bg-black/50 md:bg-black/80 backdrop-blur-sm md:backdrop-blur-none border-2 border-teal-400/50 shadow-lg shadow-teal-400/20"
+                    : "bg-black/40 md:bg-black/70 backdrop-blur-sm md:backdrop-blur-none border border-gray-600"
+                } ${
+                  isSelected ? "scale-105 shadow-xl shadow-teal-500/40" : ""
+                }`}
                 onClick={() => handleLevelClick(level)}
               >
                 {/* Level Header */}
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg font-bold text-teal-400">Lv</span>
-                    <span className="text-2xl font-bold text-white">{level.level}</span>
-                    {isActive && <RiStarFill className="text-yellow-400 w-4 h-4" />}
+                    <span className="text-2xl font-bold text-white">
+                      {level.level}
+                    </span>
+                  
+                  </div>
+                  <div className="text-xl font-semibold text-white" >
+                    {level.name}
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-semibold text-white">{level.cost}</div>
+                    <div className="text-xl font-semibold text-white">
+                      {level.cost}
+                    </div>
                     <div className="text-xs text-teal-400">USDT</div>
                   </div>
                 </div>
-
                 {/* Main Content */}
                 {isActive ? (
                   <div className="space-y-3">
-                    {/* Slot Circles */}
-                    <div className="flex justify-center space-x-2">
-                      {Array.from({ length: 4 }, (_, circleIndex) => {
-                        const isFilled: boolean = circleIndex + 1 <= slotFilled;
-                        return (
-                          <div
-                            key={circleIndex}
-                            className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
-                              isFilled 
-                                ? 'bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50' 
-                                : 'border-gray-500 bg-gray-800/80'
-                            }`}
-                          />
-                        );
-                      })}
+                    {isActive && level.locked===true?(<><div className="flex flex-col items-center space-y-2">
+                        <FaStop className="text-gray-500 w-6 h-6" />
+                        <span className="text-xs text-gray-500">Locked</span>
+                      </div></>):(<>   
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="flex justify-center space-x-3">
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            1 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            2 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                      </div>
+
+                      <div className="flex justify-center space-x-3">
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            3 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            4 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                      </div>
                     </div>
+                    </>)}
+                    {/* <div className="flex flex-col items-center space-y-2">
+                      <div className="flex justify-center space-x-3">
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            1 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            2 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                      </div>
+
+                      <div className="flex justify-center space-x-3">
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            3 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            4 <= slotFilled
+                              ? "bg-gradient-to-r from-teal-400 to-cyan-500 border-teal-400 shadow-lg shadow-teal-400/50"
+                              : "border-gray-500 bg-gray-800/80"
+                          }`}
+                        />
+                      </div>
+                    </div> */}
 
                     {/* Stats */}
                     <div className="flex justify-between text-sm">
@@ -263,7 +322,7 @@ const Levelx1Enhanced: React.FC = () => {
                             <span>Activating...</span>
                           </div>
                         ) : (
-                          'Activate'
+                          "Activate"
                         )}
                       </button>
                     ) : (
@@ -273,7 +332,7 @@ const Levelx1Enhanced: React.FC = () => {
                       </div>
                     )}
                   </div>
-                )}              
+                )}
               </div>
             );
           })}

@@ -167,7 +167,6 @@ const userProfile=useProfileStore.getState().profile
       walletAddress: address,
       socialLinks: formattedSocialLinks,
     };
-console.log();
 
  try {
   let response;

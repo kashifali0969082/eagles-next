@@ -1,5 +1,5 @@
 export const USDTContractAdress = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
-export const ContractAdress = "0x7306df3dFAE6f351a33E6dB230f6D957E6aE7423"; //mainnet X1 X2
+export const ContractAdress = "0x3338e9FeAEd7523e766B17a0101d689DbC85c106"; //mainnet X1 X2
 
 export const ABI = [
   {
@@ -379,6 +379,59 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "getTotalUSDTReceived",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getTransactionHistory",
+    outputs: [
+      {
+        components: [
+          { internalType: "address", name: "sender", type: "address" },
+          { internalType: "uint256", name: "amount", type: "uint256" },
+          { internalType: "uint256", name: "timestamp", type: "uint256" },
+          { internalType: "string", name: "transactionType", type: "string" },
+        ],
+        internalType: "struct SmartEaglrMatrix.Transaction[20]",
+        name: "",
+        type: "tuple[20]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "_userID", type: "uint256" }],
+    name: "getUserInfo",
+    outputs: [
+      {
+        components: [
+          { internalType: "address", name: "userAddress", type: "address" },
+          { internalType: "address", name: "referrer", type: "address" },
+          { internalType: "uint256", name: "id", type: "uint256" },
+          { internalType: "uint256", name: "currentX1Level", type: "uint256" },
+          { internalType: "uint256", name: "currentX2Level", type: "uint256" },
+          {
+            internalType: "uint256",
+            name: "totalUSDTReceived",
+            type: "uint256",
+          },
+          { internalType: "uint256", name: "totalDirects", type: "uint256" },
+          { internalType: "uint256", name: "totalTeamCount", type: "uint256" },
+        ],
+        internalType: "struct SmartEaglrMatrix.UserView",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       { internalType: "bytes32", name: "role", type: "bytes32" },
       { internalType: "address", name: "account", type: "address" },
@@ -413,6 +466,13 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "isHistoryFull",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       { internalType: "address", name: "user", type: "address" },
       { internalType: "uint8", name: "matrix", type: "uint8" },
@@ -427,6 +487,20 @@ export const ABI = [
     inputs: [{ internalType: "address", name: "user", type: "address" }],
     name: "isUserExists",
     outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lastID1UpdateTime",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "lastTotalUpdate",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -503,6 +577,25 @@ export const ABI = [
     inputs: [],
     name: "systemRecipentAddress",
     outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "transactionHistory",
+    outputs: [
+      { internalType: "address", name: "sender", type: "address" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "uint256", name: "timestamp", type: "uint256" },
+      { internalType: "string", name: "transactionType", type: "string" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "transactionIndex",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },

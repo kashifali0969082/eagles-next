@@ -28,7 +28,6 @@ const router=useRouter();
 
     try {
       let resp = await getIdToAddress(searchId as string);
-      console.log("resp",resp);
       let final=await isUserExists(resp as string)
       if (!final) {
 
@@ -37,7 +36,6 @@ const router=useRouter();
                   setIsLoading(false);
 
       } else {
-        console.log("in else condition");
         setAddress(resp as string)
         setTimeout(() => {
           setIsLoading(false);

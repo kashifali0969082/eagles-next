@@ -1,7 +1,22 @@
-import { User, Edit, Share2, Copy, ChevronDown, Plus, X, Mail, Wallet, ExternalLink } from "lucide-react";
+import {
+  User,
+  Edit,
+  Share2,
+  Copy,
+  ChevronDown,
+  Plus,
+  X,
+  Mail,
+  Wallet,
+  ExternalLink,
+} from "lucide-react";
 import { useState } from "react";
 import React from "react";
-import { useProfileStore } from "@/store/userCounterStore";
+import {
+  useProfileStore,
+  useUplinerStore,
+  useUserId,
+} from "@/store/userCounterStore";
 // Type definitions
 interface UserProfile {
   id?: string;
@@ -30,10 +45,13 @@ interface UserProfileProps {
 // Modal Component
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
-const userProfile=useProfileStore.getState().profile
+  const userProfile = useProfileStore.getState().profile;
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
+  const UplinerId = useUplinerStore((state) => state.uplinerId);
+  const userId = useUserId((state) => state.userIDper);
+  console.log("upliner ,user  id  ", UplinerId, userId);
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -66,15 +84,15 @@ const userProfile=useProfileStore.getState().profile
                 </div>
               )}
             </div>
-            
+
             <div className="flex-1 text-center sm:text-left">
               <h3 className="text-3xl font-bold text-white mb-2">
                 {userProfile?.name || "Name"}
               </h3>
               <p className="text-yellow-400 font-semibold text-lg mb-1">
-                ID: {userProfile?.id || "0"}
+                ID: {userId || "0"}
               </p>
-              <p className="text-gray-400">Joined by ID: 1</p>
+              <p className="text-gray-400">Joined by ID: {UplinerId}</p>
             </div>
           </div>
 
@@ -91,7 +109,9 @@ const userProfile=useProfileStore.getState().profile
           {/* Email */}
           {userProfile?.email && (
             <div className="bg-gray-800/30 rounded-xl p-4">
-              <h4 className="text-yellow-400 font-semibold mb-3">Contact Information</h4>
+              <h4 className="text-yellow-400 font-semibold mb-3">
+                Contact Information
+              </h4>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-gray-400" />
                 <span className="text-gray-300">{userProfile.email}</span>
@@ -108,14 +128,18 @@ const userProfile=useProfileStore.getState().profile
           {/* Wallet Address */}
           {userProfile?.walletAddress && (
             <div className="bg-gray-800/30 rounded-xl p-4">
-              <h4 className="text-yellow-400 font-semibold mb-3">Wallet Information</h4>
+              <h4 className="text-yellow-400 font-semibold mb-3">
+                Wallet Information
+              </h4>
               <div className="flex items-center space-x-3">
                 <Wallet className="w-5 h-5 text-gray-400" />
                 <span className="text-gray-300 font-mono text-sm break-all">
                   {userProfile.walletAddress}
                 </span>
                 <button
-                  onClick={() => handleCopyToClipboard(userProfile.walletAddress)}
+                  onClick={() =>
+                    handleCopyToClipboard(userProfile.walletAddress)
+                  }
                   className="text-gray-400 hover:text-yellow-400 transition-colors flex-shrink-0"
                 >
                   <Copy className="w-4 h-4" />
@@ -126,13 +150,19 @@ const userProfile=useProfileStore.getState().profile
 
           {/* Referral Link */}
           <div className="bg-gray-800/30 rounded-xl p-4">
-            <h4 className="text-yellow-400 font-semibold mb-3">Personal Referral Link</h4>
+            <h4 className="text-yellow-400 font-semibold mb-3">
+              Personal Referral Link
+            </h4>
             <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
               <span className="text-yellow-400 font-mono text-sm flex-1 break-all">
-                theeagles.io/{userProfile?.id || "0"}
+                theeagles.io/{userId || "0"}
               </span>
               <button
-                onClick={() => handleCopyToClipboard(`theeagles.io/${userProfile?.id || "0"}`)}
+                onClick={() =>
+                  handleCopyToClipboard(
+                    `theeagles.io/${userProfile?.id || "0"}`
+                  )
+                }
                 className="text-gray-400 hover:text-yellow-400 transition-colors flex-shrink-0"
               >
                 <Copy className="w-4 h-4" />
@@ -144,27 +174,35 @@ const userProfile=useProfileStore.getState().profile
           </div>
 
           {/* Social Links */}
-          {userProfile?.socialLinks && Object.keys(userProfile.socialLinks).length > 0 && (
-            <div className="bg-gray-800/30 rounded-xl p-4">
-              <h4 className="text-yellow-400 font-semibold mb-3">Social Links</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {Object.entries(userProfile.socialLinks)
-                  .filter(([platform, url]) => typeof url === "string" && url.trim() !== '')
-                  .map(([platform, url]) => (
-                    <a
-                      key={platform}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-gray-800/50 hover:bg-gray-700/50 px-4 py-3 rounded-lg text-gray-300 hover:text-white transition-colors flex items-center justify-between group"
-                    >
-                      <span className="capitalize font-medium">{platform}</span>
-                      <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </a>
-                  ))}
+          {userProfile?.socialLinks &&
+            Object.keys(userProfile.socialLinks).length > 0 && (
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h4 className="text-yellow-400 font-semibold mb-3">
+                  Social Links
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {Object.entries(userProfile.socialLinks)
+                    .filter(
+                      ([platform, url]) =>
+                        typeof url === "string" && url.trim() !== ""
+                    )
+                    .map(([platform, url]) => (
+                      <a
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-gray-800/50 hover:bg-gray-700/50 px-4 py-3 rounded-lg text-gray-300 hover:text-white transition-colors flex items-center justify-between group"
+                      >
+                        <span className="capitalize font-medium">
+                          {platform}
+                        </span>
+                        <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </div>
@@ -172,28 +210,26 @@ const userProfile=useProfileStore.getState().profile
 };
 
 // User Profile Component
-export const UserProfile: React.FC<UserProfileProps> = ({ 
-  profileExpanded, 
-  setProfileExpanded, 
-  onEditProfile, 
-   
+export const UserProfile: React.FC<UserProfileProps> = ({
+  profileExpanded,
+  setProfileExpanded,
+  onEditProfile,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const userId = useUserId((state) => state.userIDper);
 
   const handleNameClick = () => {
     setIsModalOpen(true);
   };
-const userProfile=useProfileStore.getState().profile
+  const userProfile = useProfileStore.getState().profile;
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    alert("sucessfully cpoied!")
   };
-console.log("data",userProfile);
-
   return (
     <>
       <div className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-lg border border-yellow-500/20 rounded-2xl p-6 mb-8">
-
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="relative">
@@ -210,14 +246,14 @@ console.log("data",userProfile);
               )}
             </div>
             <div>
-              <h2 
+              <h2
                 className="text-2xl font-bold text-white cursor-pointer hover:text-yellow-400 transition-colors"
                 onClick={handleNameClick}
               >
                 {userProfile?.name || "Name"}
               </h2>
               <p className="text-yellow-400 font-semibold">
-                ID: {userProfile?.id || "0mk"}
+                ID: {userId || "0"}
               </p>
             </div>
           </div>
@@ -248,24 +284,28 @@ console.log("data",userProfile);
         {profileExpanded && (
           <div className="border-t border-gray-700 pt-6">
             <div className="mb-4">
-              <p className="text-gray-300 text-sm mb-2">Personal Referral Link</p>
+              <p className="text-gray-300 text-sm mb-2">
+                Personal Referral Link
+              </p>
               <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
                 <span className="text-yellow-400 font-mono text-sm flex-1">
-                  theeagles.io/{userProfile?.id || "0"}
+                  theeagles.io/{userId || "0"}
                 </span>
-                <button 
-                  onClick={() => handleCopyToClipboard(`theeagles.io/${userProfile?.id || "0"}`)}
+                <button
+                  onClick={() =>
+                    handleCopyToClipboard(`theeagles.io/${userId || "0"}`)
+                  }
                   className="text-gray-400 hover:text-yellow-400 transition-colors"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
-                <button className="text-gray-400 hover:text-yellow-400 transition-colors">
+                {/* <button className="text-gray-400 hover:text-yellow-400 transition-colors">
                   <Share2 className="w-4 h-4" />
-                </button>
+                </button> */}
               </div>
             </div>
 
-            {userProfile?.socialLinks && (
+            {/* {userProfile?.socialLinks && (
               <div className="mt-4">
                 <p className="text-gray-300 text-sm mb-3">Social Links</p>
                 <div className="flex flex-wrap gap-2">
@@ -287,15 +327,15 @@ console.log("data",userProfile);
                     .filter(Boolean)}
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>
 
       {/* Modal */}
-      <ProfileModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <ProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </>
   );

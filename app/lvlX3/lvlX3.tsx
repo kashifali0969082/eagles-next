@@ -132,6 +132,8 @@ const Levelx3 = () => {
 
   const handleActivateNextLevel = async (level: any, cost: number) => {
     setLoading(true);
+    console.log("X3",level,cost);
+    
     const val = await isUserExists(address as string);
     if (!val) {
       alert("User does not exist, please register first.");
@@ -168,15 +170,16 @@ const Levelx3 = () => {
     }
   };
 
-  const levels = [
-    { level: 1, cost: 20 },
-    { level: 2, cost: 40 },
-    { level: 3, cost: 80 },
-    { level: 4, cost: 160 },
-    { level: 5, cost: 320 },
-    { level: 6, cost: 640 },
-    { level: 7, cost: 1250 },
-  ];
+const levels = [
+  { level: 1, cost: 20, name: "Spark" },
+  { level: 2, cost: 40, name: "Glow" },
+  { level: 3, cost: 80, name: "Flare" },
+  { level: 4, cost: 160, name: "Blaze" },
+  { level: 5, cost: 320, name: "Inferno" },
+  { level: 6, cost: 640, name: "Nova" },
+  { level: 7, cost: 1250, name: "Eclipse" },
+];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black p-4">

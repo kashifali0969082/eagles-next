@@ -78,13 +78,36 @@ export const users = async (address:string) => {
   return result;
 };
 
+export const getSlotFilled = async (address :string, matrix:string, level:string) => {
+  const result = await readContract(config, {
+    abi: ABI,
+    address: ContractAdress,
+    functionName: "getSlotsFilled",
+    args: [address, matrix, level],
+  });
+  return result;
+};
 
 
 
-
-
-
-
+export const activateLevel = async (matrix:string, level:string) => {
+  const result = await writeContract(config, {
+    abi: ABI,
+    address: ContractAdress,
+    functionName: "activateLevel",
+    args: [matrix, level],
+  });
+  return result;
+};
+export const isLocked = async (add:string,matrix:string,level:string) => {
+  const result = await readContract(config, {
+    abi: ABI,
+    address: ContractAdress,
+    functionName: "isLocked",
+    args: [add,matrix,level],
+  });
+  return result;
+};
 
 
 
