@@ -39,7 +39,7 @@ const router=useRouter();
         setAddress(resp as string)
         setTimeout(() => {
           setIsLoading(false);
-          router.push(`/IdSearch?addres=${resp}`);     
+          router.push(`/IdSearch?id=${searchId}`);     
           setSearchError("");
         }, 2000);
         onClose(); // close modal after navigating

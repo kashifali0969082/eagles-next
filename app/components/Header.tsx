@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
     ) {
       router.push("/login");
     }
-  }, [address, pathname]);
+  }, [address]);
   const DashboardStats = async () => {
     try {
       const SetUserId = useStatsStore.getState().setTotalUsers;

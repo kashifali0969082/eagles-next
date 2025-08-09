@@ -155,12 +155,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
             </h4>
             <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
               <span className="text-yellow-400 font-mono text-sm flex-1 break-all">
-                theeagles.io/{userId || "0"}
+                theeagles.io/IdSearch?id={userId || "0"}
               </span>
               <button
                 onClick={() =>
                   handleCopyToClipboard(
-                    `theeagles.io/${userProfile?.id || "0"}`
+                    `theeagles.io/IdSearch?id=${userProfile?.id || "0"}`
                   )
                 }
                 className="text-gray-400 hover:text-yellow-400 transition-colors flex-shrink-0"
@@ -289,11 +289,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </p>
               <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
                 <span className="text-yellow-400 font-mono text-sm flex-1">
-                  theeagles.io/{userId || "0"}
+                  theeagles.io/IdSearch?id={userId || "0"}
                 </span>
                 <button
                   onClick={() =>
-                    handleCopyToClipboard(`theeagles.io/${userId || "0"}`)
+                    handleCopyToClipboard(`theeagles.io/IdSearch?id=${userId || "0"}`)
                   }
                   className="text-gray-400 hover:text-yellow-400 transition-colors"
                 >

@@ -15,7 +15,7 @@ import { LevelProgressser } from "../components/searchId/searchlevelprogress";
 
 const Idsearch: React.FC = () => {
      const searchParams = useSearchParams();
-  const addres = searchParams.get('addres');
+  const addres = searchParams.get('id');
  const [profileExpanded, setProfileExpanded] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(null);

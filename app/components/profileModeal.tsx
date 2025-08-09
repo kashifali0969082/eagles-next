@@ -4,22 +4,23 @@ import imageCompression from "browser-image-compression";
 import axios from "axios";
 import { useAccount } from "wagmi";
 import { ApiUrl } from "@/config/exports";
-import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/store/userCounterStore";
+import { useRouter, usePathname } from "next/navigation";
 
 import { isUserExists } from "@/config/Method";
-import { toast,ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 // Profile Modal Component
 export const ProfileModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   userProfile: any;
   onSave: (profile: any) => void;
-}> = ({ isOpen, onClose,  onSave }) => {
+}> = ({ isOpen, onClose, onSave }) => {
   const { address, isConnected } = useAccount();
-    const router = useRouter();
-const userProfile=useProfileStore.getState().profile
-    
+  const router = useRouter();
+  const userProfile = useProfileStore.getState().profile;
+  const pathname = usePathname(); // Get current route
+
   const [formData, setFormData] = useState({
     id: userProfile?.id || "",
     name: userProfile?.name || "",
@@ -50,7 +51,10 @@ const userProfile=useProfileStore.getState().profile
       if (boo === true) {
         // User exists in blockchain, can proceed
       } else {
-        router.push('/register');
+        if (!pathname.startsWith("/IdSearch")) {
+          console.log("boo this else works");
+          router.push("/register");
+        }
       }
     } catch (error) {
       console.error(error);
@@ -60,7 +64,7 @@ const userProfile=useProfileStore.getState().profile
   useEffect(() => {
     if (address && isConnected) {
       CheckForUser(address);
-      setFormData(prev => ({ ...prev, walletAddress: address }));
+      setFormData((prev) => ({ ...prev, walletAddress: address }));
     }
   }, [isConnected, address]);
 
@@ -152,12 +156,16 @@ const userProfile=useProfileStore.getState().profile
     }
 
     // Format social links for API (convert from object to nested object)
-    const formattedSocialLinks = Object.entries(formData.socialLinks).reduce((acc, [platform, url]) => {
-      if (url) { // Only include non-empty URLs
-        acc[platform.toLowerCase()] = url;
-      }
-      return acc;
-    }, {} as Record<string, string>);
+    const formattedSocialLinks = Object.entries(formData.socialLinks).reduce(
+      (acc, [platform, url]) => {
+        if (url) {
+          // Only include non-empty URLs
+          acc[platform.toLowerCase()] = url;
+        }
+        return acc;
+      },
+      {} as Record<string, string>
+    );
 
     const userData = {
       name: formData.name,
@@ -168,40 +176,42 @@ const userProfile=useProfileStore.getState().profile
       socialLinks: formattedSocialLinks,
     };
 
- try {
-  let response;
-  if (
-    userProfile?.id ||
-    userProfile.description ||
-    userProfile.name ||
-    userProfile.profileImage ||
-    userProfile.socialLinks
-  ) {
-    response = await axios.post(`${ApiUrl}/profile-upgradation`, userData);
-    toast.success("Profile upgraded successfully");
-  } else {
-    response = await axios.post(`${ApiUrl}/api/profile`, userData);
-    toast.success("Profile created successfully");
-  }
+    try {
+      let response;
+      if (
+        userProfile?.id ||
+        userProfile.description ||
+        userProfile.name ||
+        userProfile.profileImage ||
+        userProfile.socialLinks
+      ) {
+        response = await axios.post(`${ApiUrl}/profile-upgradation`, userData);
+        toast.success("Profile upgraded successfully");
+      } else {
+        response = await axios.post(`${ApiUrl}/api/profile`, userData);
+        toast.success("Profile created successfully");
+      }
 
-  if (response.status === 200 || response.status === 201) {
-    onSave(formData);
-    useProfileStore.getState().setProfile(formData);
-    onClose();
-  } else {
-    toast.error("File size is too large");
-  }
-} catch (error: unknown) {
-  toast.error("Failed to save profile. Please try again.");
-  if (error instanceof Error) {
-    console.error("Error saving profile:", (error as any).response?.data || error.message);
-  } else {
-    console.error("An unexpected error occurred:", error);
-  }
-} finally {
-  setIsLoading(false);
-}
-
+      if (response.status === 200 || response.status === 201) {
+        onSave(formData);
+        useProfileStore.getState().setProfile(formData);
+        onClose();
+      } else {
+        toast.error("File size is too large");
+      }
+    } catch (error: unknown) {
+      toast.error("Failed to save profile. Please try again.");
+      if (error instanceof Error) {
+        console.error(
+          "Error saving profile:",
+          (error as any).response?.data || error.message
+        );
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -211,7 +221,9 @@ const userProfile=useProfileStore.getState().profile
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-lg border border-yellow-500/20 rounded-2xl p-8 max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Wallet Required</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Wallet Required
+          </h2>
           <p className="text-gray-300 mb-6">
             Please connect your wallet to create or update your profile.
           </p>
@@ -382,18 +394,17 @@ const userProfile=useProfileStore.getState().profile
             >
               <Save className="w-4 h-4" />
               <span>
-                {isLoading 
-                  ? "Saving..." 
-                  : userProfile 
-                    ? "Update Profile" 
-                    : "Create Profile"
-                }
+                {isLoading
+                  ? "Saving..."
+                  : userProfile
+                  ? "Update Profile"
+                  : "Create Profile"}
               </span>
             </button>
           </div>
         </form>
       </div>
-         <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
