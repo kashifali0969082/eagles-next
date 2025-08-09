@@ -37,7 +37,7 @@ export const Activity: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <Star className="w-8 h-8 text-yellow-500 animate-twinkle" />
               <span className="text-yellow-500 font-bold animate-number-count">
-                98%
+                100%
               </span>
             </div>
             <h4 className="text-white font-semibold mb-2">Success Rate</h4>

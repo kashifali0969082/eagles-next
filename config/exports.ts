@@ -1,5 +1,5 @@
 export const USDTContractAdress = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
-export const ContractAdress = "0x3338e9FeAEd7523e766B17a0101d689DbC85c106"; //mainnet X1 X2
+export const ContractAdress = "0x5D16523476431321aeB7cc97021DF9D259Bf0aA4"; //mainnet X1 X2
 
 export const ABI = [
   {
@@ -299,6 +299,13 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "get24HourJoins",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "address", name: "user", type: "address" }],
     name: "get24HourPayment",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
@@ -393,6 +400,7 @@ export const ABI = [
         components: [
           { internalType: "address", name: "sender", type: "address" },
           { internalType: "uint256", name: "amount", type: "uint256" },
+          { internalType: "uint256", name: "matrix", type: "uint256" },
           { internalType: "uint256", name: "timestamp", type: "uint256" },
           { internalType: "string", name: "transactionType", type: "string" },
         ],
@@ -512,6 +520,26 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [
+      { internalType: "address", name: "user", type: "address" },
+      { internalType: "uint256", name: "directs", type: "uint256" },
+    ],
+    name: "migrateUserDirects",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "user", type: "address" },
+      { internalType: "uint256", name: "teamCount", type: "uint256" },
+    ],
+    name: "migrateUserTeamCount",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "owner",
     outputs: [{ internalType: "address", name: "", type: "address" }],
@@ -581,11 +609,19 @@ export const ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "totalRevenueGenerated",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     name: "transactionHistory",
     outputs: [
       { internalType: "address", name: "sender", type: "address" },
       { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "uint256", name: "matrix", type: "uint256" },
       { internalType: "uint256", name: "timestamp", type: "uint256" },
       { internalType: "string", name: "transactionType", type: "string" },
     ],
@@ -668,6 +704,11 @@ export const ABI = [
       { internalType: "uint256", name: "totalUSDTReceived", type: "uint256" },
       { internalType: "uint256", name: "totalDirects", type: "uint256" },
       { internalType: "uint256", name: "totalTeamCount", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "registrationTimestamp",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -696,8 +737,8 @@ export const ApiUrl = "http://localhost:5000";
 // export const ApiUrl = "https://reffaralmoney.com";
 
 export const usdtdecimals = 1000000;
-
-export const X3DiamondAddress = "0x1b8d42c1Dc2C895eDe95c77dA99Ff9f2E4F0c0DD"; //testnet
+export const mainnetDecimals = 1e18;
+export const X3DiamondAddress = "0x4343bF0DDD9A1c6333a7B2b562be1033d162bD43"; //testnet
 export const X3DiamondAbi = [
   {
     inputs: [

@@ -1,7 +1,11 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-
+import {
+  dashboardStatsStore,
+  useUserId,
+  useUserLevels,
+} from "@/store/userCounterStore";
 import {
   X3activateLevel,
   X3getSlotsFilled,
@@ -12,6 +16,7 @@ import {
   isUserExists,
   getTxn,
 } from "@/config/Method";
+import { mainnetDecimals, usdtdecimals } from "@/config/exports";
 // Custom SVG Icons
 const ArrowPathIcon = ({ size = 16, className = "" }) => (
   <svg
@@ -73,8 +78,16 @@ const Levelx3 = () => {
   const [data, setData] = useState("");
   const { address } = useAccount();
   const [loading, setLoading] = useState(false);
-  const [slotsData, setSlotsData] =useState<SlotsData>({});
+  const [slotsData, setSlotsData] = useState<SlotsData>({});
   const [isVisible, setIsVisible] = useState(false);
+  const userid = useUserId.getState().userIDper;
+  const totalProfit = dashboardStatsStore.getState().totalProfit;
+  const setX3 = useUserLevels.getState().setLvlX3;
+  const sethr24ProfitProfit =
+    dashboardStatsStore.getState().sethr24ProfitProfit;
+  const { hr24Profit } = dashboardStatsStore();
+
+  // const activeLevel = useUserLevels.getState().lvlX1;
 
   // Trigger entrance animation
   useEffect(() => {
@@ -132,8 +145,7 @@ const Levelx3 = () => {
 
   const handleActivateNextLevel = async (level: any, cost: number) => {
     setLoading(true);
-    console.log("X3",level,cost);
-    
+
     const val = await isUserExists(address as string);
     if (!val) {
       alert("User does not exist, please register first.");
@@ -142,19 +154,40 @@ const Levelx3 = () => {
     }
 
     try {
-      const approve = await X3USDTapprove(cost);
+      const approve = await X3USDTapprove(cost * usdtdecimals);
       const approveReceipt = await getTxn(approve as string);
+      const setTotalProfit = dashboardStatsStore.getState().setTotalProfit;
+
       if (!approveReceipt) throw new Error("Approval transaction failed");
 
       if (level === 1 && cost === 20) {
+        console.log("X3", level, cost, val);
         const register = await X3register();
         const registerReceipt = await getTxn(register as string);
         if (!registerReceipt) throw new Error("Registration failed");
+        else {
+          const twentyPercentOfCost = (20 / 100) * cost;
+          setTotalProfit(totalProfit + twentyPercentOfCost * usdtdecimals);
+          setActiveLevel(1);
+          sethr24ProfitProfit(hr24Profit + twentyPercentOfCost);
+          setX3(1);
+        }
       } else {
+        console.log("in level x3");
+
         const activate = await X3activateLevel(level);
         const activateReceipt = await getTxn(activate as string);
         if (!activateReceipt)
           throw new Error(`Activation failed for level ${level}`);
+        else {
+          const twentyPercentOfCost = (20 / 100) * cost;
+          setTotalProfit(totalProfit + twentyPercentOfCost * usdtdecimals);
+          console.log("level", level);
+          setActiveLevel(level);
+          sethr24ProfitProfit(hr24Profit + twentyPercentOfCost);
+
+          setX3(level);
+        }
       }
 
       setActiveLevel((prev) => prev + 1);
@@ -170,16 +203,15 @@ const Levelx3 = () => {
     }
   };
 
-const levels = [
-  { level: 1, cost: 20, name: "Spark" },
-  { level: 2, cost: 40, name: "Glow" },
-  { level: 3, cost: 80, name: "Flare" },
-  { level: 4, cost: 160, name: "Blaze" },
-  { level: 5, cost: 320, name: "Inferno" },
-  { level: 6, cost: 640, name: "Nova" },
-  { level: 7, cost: 1250, name: "Eclipse" },
-];
-
+  const levels = [
+    { level: 1, cost: 20, name: "Spark" },
+    { level: 2, cost: 40, name: "Glow" },
+    { level: 3, cost: 80, name: "Flare" },
+    { level: 4, cost: 160, name: "Blaze" },
+    { level: 5, cost: 320, name: "Inferno" },
+    { level: 6, cost: 640, name: "Nova" },
+    { level: 7, cost: 1250, name: "Eclipse" },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black p-4">
@@ -202,13 +234,11 @@ const levels = [
                 Theeagles.io User
               </h1>
               <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 rounded-full">
-                <span className="text-white font-semibold">
-                  ID {data?.[1]?.toString()}
-                </span>
+                <span className="text-white font-semibold">ID {userid}</span>
               </div>
             </div>
             <p className="text-gray-300 text-lg">
-              ID {data?.[1]?.toString()} / Theeagles.io x3 ({activeLevel}/7)
+              ID {userid} / Theeagles.io x3 ({activeLevel}/7)
             </p>
             <div className="mt-4 bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full overflow-hidden">
               <div
@@ -278,16 +308,6 @@ const levels = [
                           Level {level.level}
                         </h3>
                         <div className="flex items-center gap-2">
-                          <img
-                            src="/assets/LoginImages/tether.png"
-                            alt="USDT"
-                            className="h-4 w-4"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src =
-                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFD700'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Ctext x='12' y='16' text-anchor='middle' fill='%23000' font-size='10' font-weight='bold'%3E%24%3C/text%3E%3C/svg%3E";
-                            }}
-                          />
                           <span className="font-semibold">
                             {level.cost} USDT
                           </span>
@@ -328,9 +348,9 @@ const levels = [
                                     index <= slotData.slotsFilled;
 
                                   const positions: Record<number, string> = {
-                                    1: "left-0",
-                                    2: "left-1/2",
-                                    3: "left-full",
+                                    1: "top-0 left-1/2 transform -translate-x-1/2",
+                                    2: "bottom-0 left-0",
+                                    3: "bottom-0 right-0",
                                   };
 
                                   return (

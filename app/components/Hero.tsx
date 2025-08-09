@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SearchModal } from "./SearchModal";
+import { useStatsStore } from "@/store/userCounterStore";
 export const Hero: React.FC = () => {
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+  const { totalUsers} = useStatsStore();
 
   const mlmTipsAndQuotes = [
     "🚀 Success in MLM is about consistency, not luck.",
@@ -96,7 +98,7 @@ export const Hero: React.FC = () => {
                 <span className="mx-2 text-gray-300">⚡ Real-time Updates</span>
                 •
                 <span className="mx-2 text-gray-300">
-                  👥 Total Members: 5,410
+                  👥 Total Members: {totalUsers}
                 </span>
                 •
                 <span className="mx-2 text-gray-300">
@@ -108,7 +110,7 @@ export const Hero: React.FC = () => {
                 </span>
                 •
                 <span className="mx-2 text-green-400">
-                  🚀 Join 5,410+ Members
+                  🚀 Join {totalUsers}+ Members
                 </span>
                 •
                 <span className="mx-2 text-yellow-300">
@@ -122,7 +124,7 @@ export const Hero: React.FC = () => {
                 <span className="mx-1 font-mono text-yellow-300 text-xs">
                   0x742d...7d8a
                 </span>
-                • BSC Network • ✅ Verified • 👥 5,410 Members • 💰 $7,332.50
+                • BSC Network • ✅ Verified • 👥 {totalUsers} Members • 💰 $7,332.50
                 Distributed •
                 <span className="mx-1 text-yellow-400">🚀 Join Now!</span>• 🔗
                 Contract: 0x742d...7d8a • ✅ Audited • 💎 Secure
@@ -272,7 +274,7 @@ export const Hero: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-4xl mx-auto px-4">
             <div className="bg-gradient-to-r from-gray-900/60 to-black/60 backdrop-blur-lg border border-yellow-500/20 rounded-xl p-4 sm:p-6 text-center hover:border-yellow-500/40 transition-all duration-300">
               <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-yellow-400 mb-2">
-                5,410+
+                {totalUsers}+
               </div>
               <div className="text-gray-400 text-sm sm:text-base">
                 Active Members
@@ -288,7 +290,7 @@ export const Hero: React.FC = () => {
             </div>
             <div className="bg-gradient-to-r from-gray-900/60 to-black/60 backdrop-blur-lg border border-yellow-500/20 rounded-xl p-4 sm:p-6 text-center hover:border-yellow-500/40 transition-all duration-300">
               <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-yellow-400 mb-2">
-                98%
+                100%
               </div>
               <div className="text-gray-400 text-sm sm:text-base">
                 Success Rate

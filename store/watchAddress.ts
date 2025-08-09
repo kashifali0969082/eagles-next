@@ -1,14 +1,31 @@
 // watchAddress.ts
 import axios from "axios";
-import { useAdressStore, useUserId, useUserLevels } from "./userCounterStore";
-import { ApiUrl } from "@/config/exports";
+import {
+  dashboardStatsStore,
+  useAdressStore,
+  useStatsStore,
+  useUserId,
+  useUserLevels,
+} from "./userCounterStore";
+import { ApiUrl, usdtdecimals } from "@/config/exports";
 import {
   useProfileStore,
   useUplinerStore,
   useX1LevelStore,
   useX2LevelStore,
 } from "./userCounterStore";
-import { isLocked, users, X3Users } from "@/config/Method";
+import {
+  get24HourDirects,
+  get24HourPayment,
+  get24HourTeamCount,
+  isLocked,
+  lastUserid,
+  users,
+  X3get24HourDirects,
+  X3get24HourPayment,
+  X3get24HourTeamCount,
+  X3Users,
+} from "@/config/Method";
 import { getSlotFilled } from "@/config/Method";
 interface Level {
   level: number;
@@ -29,6 +46,7 @@ const unsub = useAdressStore.subscribe(
       UplinerId();
       getEveryLevelData();
       getEveryLevelDataX2();
+      getDashStats();
     }
   },
   {
@@ -65,6 +83,11 @@ const UplinerId = async () => {
   const setX1 = useUserLevels.getState().setLvlX1;
   const setX2 = useUserLevels.getState().setLvlX2;
   const setX3 = useUserLevels.getState().setLvlX3;
+  const setTotalProfit = dashboardStatsStore.getState().setTotalProfit;
+  const setTotalpartners = dashboardStatsStore.getState().setpartners;
+  const setTotalTeam = dashboardStatsStore.getState().setteam;
+  const sethr24Totalpartners = dashboardStatsStore.getState().sethr24partners;
+  const sethr24TotalTeam = dashboardStatsStore.getState().sethr24team;
 
   try {
     let val = (await users(currentAddress)) as [
@@ -98,7 +121,24 @@ const UplinerId = async () => {
       BigInt
     ];
     setX3(Number(X3val[2]));
+    let profit = Number(val[4]) + Number(X3val[3]);
+    let partner = Number(val[5]) + Number(X3val[4]);
+    let team = Number(val[6]) + Number(X3val[5]);
 
+let par=await get24HourDirects(currentAddress)
+let par24=await X3get24HourDirects(currentAddress)
+let tea=await get24HourTeamCount(currentAddress)
+let X3tea=await X3get24HourTeamCount(currentAddress)
+let partner24hr=Number(par)+Number(par24);
+let team24hr=Number(tea)+Number(X3tea);
+
+
+sethr24TotalTeam(team24hr)
+sethr24Totalpartners(partner24hr)
+    setTotalpartners(partner)
+    setTotalTeam(team)
+
+    setTotalProfit(profit);
     console.log("upliner id is ", val2);
     setUplinerId(Number(val2[1]).toString());
   } catch (error) {
@@ -191,4 +231,21 @@ const getEveryLevelDataX2 = async () => {
     console.log("Error while getting slots:", error);
   }
 };
+
+const getDashStats = async () => {
+  const currentAddress = useAdressStore.getState().address;
+  const sethr24ProfitProfit =
+    dashboardStatsStore.getState().sethr24ProfitProfit;
+  try {
+    let val = await get24HourPayment(currentAddress);
+    let valX3 = await X3get24HourPayment(currentAddress);
+    let final = Number(val) + Number(valX3);
+    console.log("zzz", final / usdtdecimals);
+
+    sethr24ProfitProfit(final / usdtdecimals);
+  } catch (error) {
+    console.log("error while getting stats", error);
+  }
+};
+
 export default unsub;

@@ -24,5 +24,23 @@ export const ContractInformation: React.FC = () => (
         </p>
       </div>
     </div>
+     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      <div className="text-center">
+        <p className="text-gray-400 text-sm mb-2">Contract Level</p>
+        <div className="flex items-center justify-center space-x-2">
+          <span className="text-teal-400 font-bold text-lg">X3</span>
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-gray-400 text-sm mb-2">Network</p>
+        <p className="text-yellow-400 font-bold text-lg">Smart Chain</p>
+      </div>
+      <div className="text-center">
+        <p className="text-gray-400 text-sm mb-2">Contract Address</p>
+        <p className="text-yellow-400 font-bold text-lg font-mono">
+          0x55...a32
+        </p>
+      </div>
+    </div>
   </div>
 );

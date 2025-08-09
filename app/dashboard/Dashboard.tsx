@@ -9,7 +9,7 @@ import { ContractInformation } from "../components/contactInfor";
 import { TransactionHistory } from "../components/Transaction-Info";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { useAdressStore } from "@/store/userCounterStore";
+import { useAdressStore, useStatsStore } from "@/store/userCounterStore";
 import { useProfileStore } from "@/store/userCounterStore";
 
 // Main Dashboard Component
@@ -19,6 +19,8 @@ const Dashboard: React.FC = () => {
   const [userProfile, setUserProfile] = useState(null);
   const currentAddress = useAdressStore.getState().address;
   const { address, isConnected, isDisconnected } = useAccount();
+    const { totalUsers} = useStatsStore();
+
   const router = useRouter();
 const formData= {
         id: "",
@@ -73,7 +75,7 @@ const formData= {
           </h4>
           <div className="grid grid-cols-2 gap-3 text-center">
             <div>
-              <p className="text-yellow-400 font-bold text-sm">5,410</p>
+              <p className="text-yellow-400 font-bold text-sm">{totalUsers}</p>
               <p className="text-gray-400 text-xs">Members</p>
             </div>
             <div>
