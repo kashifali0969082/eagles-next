@@ -40,9 +40,9 @@ const router=useRouter();
         setTimeout(() => {
           setIsLoading(false);
           router.push(`/IdSearch?addres=${resp}`);     
-          onClose(); // close modal after navigating
           setSearchError("");
         }, 2000);
+        onClose(); // close modal after navigating
       }
     } catch (error) {
       console.log("error while getting address for id");

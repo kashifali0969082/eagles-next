@@ -58,7 +58,11 @@ export const Header: React.FC = () => {
   // }, [address,isConnected]);
   useEffect(() => {
     console.log("use effect chala", currentAddress, address);
-    if (currentAddress !== address && pathname !== "/") {
+    if (
+      currentAddress !== address &&
+      pathname !== "/" &&
+      !pathname.startsWith("/IdSearch")
+    ) {
       router.push("/login");
     }
   }, [address, pathname]);

@@ -148,19 +148,7 @@ export const TransactionHistory: React.FC = () => {
         </button>
       </div>
 
-      {/* Optional: Transaction Filter */}
-      <div className="mb-4">
-        <select
-          value={transactionFilter}
-          onChange={(e) => setTransactionFilter(e.target.value as TransactionFilter)}
-          className="bg-gray-800/50 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-        >
-          <option value="all">All Transactions</option>
-          <option value="completed">Completed</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
-      </div>
+   
 
       {/* Transaction Table */}
       <div className="overflow-x-auto">

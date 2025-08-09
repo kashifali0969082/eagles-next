@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { UserProfile } from "../components/userprofile";
 import { ProfileModal } from "../components/profileModeal";
 import { StatsGrid } from "../components/StatsGrid";
-import { LevelProgress } from "../components/levelProgress";
 import { PlatformStatistics } from "../components/staticcomponent";
 import { ContractInformation } from "../components/contactInfor";
 import { TransactionHistory } from "../components/Transaction-Info";
@@ -12,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useAdressStore, useStatsStore } from "@/store/userCounterStore";
 import { useProfileStore } from "@/store/userCounterStore";
 import { useSearchParams } from 'next/navigation';
+import { UserProfilesear } from "../components/searchId/searchuserprofile";
+import { LevelProgressser } from "../components/searchId/searchlevelprogress";
 
 const Idsearch: React.FC = () => {
      const searchParams = useSearchParams();
@@ -57,7 +57,7 @@ const formData= {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* User Profile - Responsive */}
-        <UserProfile
+        <UserProfilesear
           profileExpanded={profileExpanded}
           setProfileExpanded={setProfileExpanded}
           onEditProfile={() => setIsProfileModalOpen(true)}
@@ -83,7 +83,7 @@ const formData= {
         </div>
 
         {/* Shared Components - All Responsive */}
-        <LevelProgress />
+        <LevelProgressser />
         <PlatformStatistics />
         <ContractInformation />
         <TransactionHistory />
