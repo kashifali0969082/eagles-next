@@ -38,14 +38,15 @@ export const isUserExists = async (address: string) => {
 };
 
 export const getIdToAddress = async (id: string) => {
-  console.log("id too search",id);
-  
+  console.log("id too search", id);
+
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
     functionName: "idToAddress",
     args: [id],
   });
+  console.log("id retrun result", result);
   return result;
 };
 
@@ -68,7 +69,7 @@ export const register = async (address: string) => {
   });
   return result;
 };
-export const users = async (address:string) => {
+export const users = async (address: string) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
@@ -78,7 +79,11 @@ export const users = async (address:string) => {
   return result;
 };
 
-export const getSlotFilled = async (address :string, matrix:string, level:string) => {
+export const getSlotFilled = async (
+  address: string,
+  matrix: string,
+  level: string
+) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
@@ -88,9 +93,7 @@ export const getSlotFilled = async (address :string, matrix:string, level:string
   return result;
 };
 
-
-
-export const activateLevel = async (matrix:string, level:string) => {
+export const activateLevel = async (matrix: string, level: string) => {
   const result = await writeContract(config, {
     abi: ABI,
     address: ContractAdress,
@@ -99,12 +102,12 @@ export const activateLevel = async (matrix:string, level:string) => {
   });
   return result;
 };
-export const isLocked = async (add:string,matrix:string,level:string) => {
+export const isLocked = async (add: string, matrix: string, level: string) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
     functionName: "isLocked",
-    args: [add,matrix,level],
+    args: [add, matrix, level],
   });
   return result;
 };
@@ -117,36 +120,32 @@ export const lastUserid = async () => {
   return result;
 };
 
-
-export const get24HourPayment = async (add:string) => {
+export const get24HourPayment = async (add: string) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
     functionName: "get24HourPayment",
-    args:[add]
+    args: [add],
   });
   return result;
 };
 
-
-
-export const get24HourDirects = async (add:string) => {
+export const get24HourDirects = async (add: string) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
     functionName: "get24HourDirects",
-    args:[add]
+    args: [add],
   });
   return result;
 };
 
-
-export const get24HourTeamCount = async (add:string) => {
+export const get24HourTeamCount = async (add: string) => {
   const result = await readContract(config, {
     abi: ABI,
     address: ContractAdress,
     functionName: "get24HourTeamCount",
-    args:[add]
+    args: [add],
   });
   return result;
 };
@@ -157,17 +156,11 @@ export const getTransactionHistory = async () => {
     address: ContractAdress,
     functionName: "getTransactionHistory",
   });
-  console.log("result",result);
+  console.log("result", result);
   return result;
-  
 };
 
-
-
-
 // X3 functions
-
-
 
 export const X3activateLevel = async (level: string) => {
   const result = await writeContract(config, {
@@ -183,7 +176,7 @@ export const X3get24HourPayment = async (add: string) => {
     abi: X3DiamondAbi,
     address: X3DiamondAddress,
     functionName: "get24HourPayment",
-    args: [add]
+    args: [add],
   });
   return result;
 };
@@ -192,7 +185,7 @@ export const X3get24HourTeamCount = async (add: string) => {
     abi: X3DiamondAbi,
     address: X3DiamondAddress,
     functionName: "get24HourTeamCount",
-    args: [add]
+    args: [add],
   });
   return result;
 };
@@ -201,7 +194,7 @@ export const X3get24HourDirects = async (add: string) => {
     abi: X3DiamondAbi,
     address: X3DiamondAddress,
     functionName: "get24HourDirects",
-    args: [add]
+    args: [add],
   });
   return result;
 };
@@ -211,27 +204,30 @@ export const X3getTransactionHistory = async () => {
     address: X3DiamondAddress,
     functionName: "getTransactionHistory",
   });
-  console.log("result",result);
+  console.log("result", result);
   return result;
-  
 };
 
-export const X3getSlotsFilled = async (add:string,level:string,matrix:string) => {
+export const X3getSlotsFilled = async (
+  add: string,
+  level: string,
+  matrix: string
+) => {
   const result = await readContract(config, {
     abi: X3DiamondAbi,
     address: X3DiamondAddress,
     functionName: "getSlotsFilled",
-    args: [add,matrix, level],
+    args: [add, matrix, level],
   });
   return result;
 };
 
-export const X3isLocked = async (add:string,level:string) => {
+export const X3isLocked = async (add: string, level: string) => {
   const result = await readContract(config, {
     abi: X3DiamondAbi,
     address: X3DiamondAddress,
     functionName: "isLocked",
-    args: [add,level],
+    args: [add, level],
   });
   return result;
 };
@@ -244,7 +240,7 @@ export const X3register = async () => {
   });
   return result;
 };
-export const X3USDTapprove = async (amount:number) => {
+export const X3USDTapprove = async (amount: number) => {
   const result = await writeContract(config, {
     abi: USDTTestNetABI,
     address: USDTContractAdress,
@@ -254,8 +250,7 @@ export const X3USDTapprove = async (amount:number) => {
   return result;
 };
 
-
-export const X3Users = async (address:string) => {
+export const X3Users = async (address: string) => {
   const result = await readContract(config, {
     abi: X3DiamondAbi,
     address: X3DiamondAddress,
@@ -266,4 +261,3 @@ export const X3Users = async (address:string) => {
 
   return result;
 };
-

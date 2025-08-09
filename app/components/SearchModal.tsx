@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
 import { isUserExists, getIdToAddress } from "@/config/Method";
@@ -13,9 +13,9 @@ export const SearchModal: React.FC<{
   const [isLoading, setIsLoading] = useState(false);
   const [searchResult, setSearchResult] = useState<any>(null);
   const [searchError, setSearchError] = useState("");
-    const setAddress = useAdressStore((state) => state.setAddress);
+  const setAddress = useAdressStore((state) => state.setAddress);
+  const router = useRouter();
   
-const router=useRouter();
   const handleSearch = async () => {
     if (!searchId.trim()) {
       setSearchError("Please enter a valid ID");
@@ -28,18 +28,16 @@ const router=useRouter();
 
     try {
       let resp = await getIdToAddress(searchId as string);
-      let final=await isUserExists(resp as string)
+      let final = await isUserExists(resp as string);
       if (!final) {
-
         setSearchError("User not found. Please check the ID and try again.");
         setSearchResult(null);
-                  setIsLoading(false);
-
+        setIsLoading(false);
       } else {
-        setAddress(resp as string)
+        setAddress(resp as string);
         setTimeout(() => {
           setIsLoading(false);
-          router.push(`/IdSearch?id=${searchId}`);     
+          router.push(`/IdSearch?id=${searchId}`);
           setSearchError("");
         }, 2000);
         onClose(); // close modal after navigating

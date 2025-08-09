@@ -1,85 +1,79 @@
-// "use client"
+// app/(wherever)/hooks/useSocket.ts
+"use client";
 
-// import { useCallback, useEffect, useRef, useState } from "react"
-// import { io, Socket } from "socket.io-client"
+import { useCallback, useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
-// interface ServerToClientEvents {
-//   connect: () => void
-//   disconnect: (reason: string) => void
-//   connect_error: (error: Error) => void
-//   error: (errorMsg: string) => void
-//   // Add other custom events here if needed
-// }
+interface ServerToClientEvents {
+  all_entries: (data: unknown[]) => void;
+  new_entries: (data: unknown[]) => void;
+  error: (msg: string) => void;
+}
 
-// interface ClientToServerEvents {
-//   // Add client-to-server event signatures if needed
-// }
+interface ClientToServerEvents {
+  init_address: (address: string) => void;
+}
 
-// type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>
+type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
-// export function useSocket() {
-//   const [isConnected, setIsConnected] = useState<boolean>(false)
-//   const socketRef = useRef<TypedSocket | null>(null)
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
 
-//   const connect = useCallback(() => {
-//     if (socketRef.current) {
-//       socketRef.current.disconnect()
-//     }
+export function useSocket() {
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef<TypedSocket | null>(null);
 
-//     console.log("Initializing socket connection...")
+  const connect = useCallback(() => {
+    if (socketRef.current?.connected) return socketRef.current;
 
-//     socketRef.current = io("http://localhost:5000", {
-//       transports: ["websocket"],
-//       // auth: { token },
-//     })
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
 
-//     socketRef.current.on("connect", () => {
-//       console.log("✅ Socket connected:", socketRef.current?.id)
-//       setIsConnected(true)
-//     })
+    const socket = io(SOCKET_URL, {
+      // let it negotiate polling->websocket
+      withCredentials: true,
+      autoConnect: true,
+    });
 
-//     socketRef.current.on("disconnect", (reason) => {
-//       console.log("❌ Socket disconnected:", reason)
-//       setIsConnected(false)
-//     })
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
+      setIsConnected(true);
+    });
 
-//     socketRef.current.on("connect_error", (error) => {
-//       console.error("Connection error:", error.message)
-//       setIsConnected(false)
-//     })
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+      setIsConnected(false);
+    });
 
-//     socketRef.current.on("error", (errorMsg: string) => {
-//       console.error("Socket error:", errorMsg)
-//     })
+    socket.on("connect_error", (err) => {
+      console.error("⚠️ connect_error:", err.message);
+      setIsConnected(false);
+    });
 
-//     return socketRef.current
-//   }, [])
+    socket.on("error", (msg) => {
+      console.error("🧨 server error:", msg);
+    });
 
-//   const disconnect = useCallback(() => {
-//     if (socketRef.current) {
-//       socketRef.current.disconnect()
-//       setIsConnected(false)
-//       socketRef.current = null
-//     }
-//   }, [])
+    socketRef.current = socket;
+    return socket;
+  }, []);
 
-//   const getSocket = useCallback((): TypedSocket | null => {
-//     return socketRef.current
-//   }, [])
+  const disconnect = useCallback(() => {
+    socketRef.current?.disconnect();
+    socketRef.current = null;
+    setIsConnected(false);
+  }, []);
 
-//   useEffect(() => {
-//     return () => {
-//       if (socketRef.current) {
-//         console.log("Cleaning up socket connection")
-//         socketRef.current.disconnect()
-//       }
-//     }
-//   }, [])
+  const getSocket = useCallback(() => socketRef.current, []);
 
-//   return {
-//     getSocket,
-//     isConnected,
-//     connect,
-//     disconnect,
-//   }
-// }
+  useEffect(() => {
+    // optional: auto-connect on mount
+    connect();
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
+
+  return { isConnected, getSocket, connect, disconnect };
+}

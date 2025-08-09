@@ -9,37 +9,83 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { useAdressStore, useStatsStore } from "@/store/userCounterStore";
 import { useProfileStore } from "@/store/userCounterStore";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from "next/navigation";
 import { UserProfilesear } from "../components/searchId/searchuserprofile";
 import { LevelProgressser } from "../components/searchId/searchlevelprogress";
+import { getIdToAddress, isUserExists } from "@/config/Method";
 
 const Idsearch: React.FC = () => {
-     const searchParams = useSearchParams();
-  const addres = searchParams.get('id');
- const [profileExpanded, setProfileExpanded] = useState(false);
+  const searchParams = useSearchParams();
+  const addres = searchParams.get("id");
+  const [profileExpanded, setProfileExpanded] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const currentAddress = useAdressStore.getState().address;
   const { address, isConnected, isDisconnected } = useAccount();
-    const { totalUsers} = useStatsStore();
-
+  const { totalUsers } = useStatsStore();
+  const [searchId, setSearchId] = useState("");
+  const [searchError, setSearchError] = useState("");
+  const [searchResult, setSearchResult] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const setAddress = useAdressStore((state) => state.setAddress);
   const router = useRouter();
-const formData= {
-        id: "",
-        name: "",
-        email: "",
-        description: "",
-        walletAddress: "",
-        profileImage: "",
-        socialLinks: {
-          facebook:  "",
-          youtube:  "",
-          instagram: "",
-          twitter:  "",
-          whatsapp: "",
-        },
-      };
+  const id = searchParams.get("id"); // value from ?id=123
+  console.log("id", id);
+  useEffect(() => {
+    console.log("id useeffect is working");
+    
+    handleSearch()
+  }, [id]);
 
+  const handleSearch = async () => {
+    console.log("id handle search is working");
+    
+    // if (!searchId.trim()) {
+    //   setSearchError("Please enter a valid ID");
+    //   return;
+    // }
+    // setIsLoading(true);
+    // setSearchError("");
+    // setSearchResult(null);
+
+    try {
+      console.log("id in try block");
+      
+      let resp = await getIdToAddress(id as string);
+      console.log("id resp",resp);
+      
+      let final = await isUserExists(resp as string);
+      console.log("id final is",final);
+      if (!final) {
+        
+        setSearchError("User not found. Please check the ID and try again.");
+        setSearchResult(null);
+        setIsLoading(false);
+      } else {
+        console.log("id resp",resp);
+        
+        setAddress(resp as string);
+      }
+    } catch (error) {
+      console.log("error while getting address for id");
+      setIsLoading(false);
+    }
+  };
+  const formData = {
+    id: "",
+    name: "",
+    email: "",
+    description: "",
+    walletAddress: "",
+    profileImage: "",
+    socialLinks: {
+      facebook: "",
+      youtube: "",
+      instagram: "",
+      twitter: "",
+      whatsapp: "",
+    },
+  };
 
   const handleSaveProfile = (profileData: any) => {
     setUserProfile(profileData);
@@ -97,10 +143,7 @@ const formData= {
         />
       </div>
     </div>
-    
   );
 };
-
-
 
 export default Idsearch;

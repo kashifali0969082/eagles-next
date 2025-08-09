@@ -9,6 +9,7 @@ import {
   Mail,
   Wallet,
   ExternalLink,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 import React from "react";
@@ -225,7 +226,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("sucessfully cpoied!")
+    alert("sucessfully cpoied!");
   };
   return (
     <>
@@ -262,6 +263,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               onClick={onEditProfile}
               className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded-lg transition-all duration-300"
             >
+              <Bell className="w-4 h-4" />
+            </button>
+            <button
+              onClick={onEditProfile}
+              className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded-lg transition-all duration-300"
+            >
               {userProfile ? (
                 <Edit className="w-4 h-4" />
               ) : (
@@ -293,7 +300,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 </span>
                 <button
                   onClick={() =>
-                    handleCopyToClipboard(`theeagles.io/IdSearch?id=${userId || "0"}`)
+                    handleCopyToClipboard(
+                      `theeagles.io/IdSearch?id=${userId || "0"}`
+                    )
                   }
                   className="text-gray-400 hover:text-yellow-400 transition-colors"
                 >
