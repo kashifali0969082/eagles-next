@@ -17,6 +17,7 @@ import {
   getTxn,
 } from "@/config/Method";
 import { mainnetDecimals, usdtdecimals } from "@/config/exports";
+
 // Custom SVG Icons
 const ArrowPathIcon = ({ size = 16, className = "" }) => (
   <svg
@@ -49,14 +50,17 @@ const PeopleIcon = ({ size = 16, className = "" }) => (
     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
+
 type SlotData = {
   slotsFilled: number;
   recycleCount: number;
   isLocked: boolean;
 };
+
 type SlotsData = {
   [key: `level${number}`]: SlotData;
 };
+
 const LockIcon = ({ size = 24, className = "" }) => (
   <svg
     width={size}
@@ -86,8 +90,7 @@ const Levelx3 = () => {
   const sethr24ProfitProfit =
     dashboardStatsStore.getState().sethr24ProfitProfit;
   const { hr24Profit } = dashboardStatsStore();
-
-  // const activeLevel = useUserLevels.getState().lvlX1;
+  const effect = dashboardStatsStore.getState().effect;
 
   // Trigger entrance animation
   useEffect(() => {
@@ -143,6 +146,33 @@ const Levelx3 = () => {
     }
   };
 
+  // New function to refresh specific level data
+  const refreshLevelData = async (levelNumber: number) => {
+    if (!address) return;
+
+    try {
+      const val = (await X3getSlotsFilled(
+        address,
+        levelNumber.toString(),
+        "3"
+      )) as any;
+      const slotsFilled = Number(val[0]);
+      const recycleCount = Number(val[1]);
+      const lock = await X3isLocked(address as string, levelNumber.toString());
+
+      setSlotsData((prev) => ({
+        ...prev,
+        [`level${levelNumber}`]: {
+          slotsFilled,
+          recycleCount,
+          isLocked: lock,
+        },
+      }));
+    } catch (err) {
+      console.error(`Failed to refresh data for level ${levelNumber}`, err);
+    }
+  };
+
   const handleActivateNextLevel = async (level: any, cost: number) => {
     setLoading(true);
 
@@ -157,7 +187,7 @@ const Levelx3 = () => {
       const approve = await X3USDTapprove(cost * usdtdecimals);
       const approveReceipt = await getTxn(approve as string);
       const setTotalProfit = dashboardStatsStore.getState().setTotalProfit;
-
+      const settranstable = dashboardStatsStore.getState().seteffect;
       if (!approveReceipt) throw new Error("Approval transaction failed");
 
       if (level === 1 && cost === 20) {
@@ -168,9 +198,15 @@ const Levelx3 = () => {
         else {
           const twentyPercentOfCost = (20 / 100) * cost;
           setTotalProfit(totalProfit + twentyPercentOfCost * usdtdecimals);
-          setActiveLevel(1);
+          setActiveLevel(level);
           sethr24ProfitProfit(hr24Profit + twentyPercentOfCost);
-          setX3(1);
+          settranstable(!effect);
+          setX3(level);
+
+          // Refresh data for the newly activated level after a short delay
+          setTimeout(() => {
+            refreshLevelData(level);
+          }, 2000);
         }
       } else {
         console.log("in level x3");
@@ -182,16 +218,21 @@ const Levelx3 = () => {
         else {
           const twentyPercentOfCost = (20 / 100) * cost;
           setTotalProfit(totalProfit + twentyPercentOfCost * usdtdecimals);
+          settranstable(!effect);
+
           console.log("level", level);
           setActiveLevel(level);
           sethr24ProfitProfit(hr24Profit + twentyPercentOfCost);
-
           setX3(level);
+
+          // Refresh data for the newly activated level after a short delay
+          setTimeout(() => {
+            refreshLevelData(level);
+          }, 2000);
         }
       }
 
-      setActiveLevel((prev) => prev + 1);
-      alert(`${level} level activated successfully`);
+      alert(`Level ${level} activated successfully`);
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.log("Error in handleActivateNextLevel:", error.message);

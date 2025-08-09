@@ -151,7 +151,16 @@ export const get24HourTeamCount = async (add:string) => {
   return result;
 };
 
-
+export const getTransactionHistory = async () => {
+  const result = await readContract(config, {
+    abi: ABI,
+    address: ContractAdress,
+    functionName: "getTransactionHistory",
+  });
+  console.log("result",result);
+  return result;
+  
+};
 
 
 

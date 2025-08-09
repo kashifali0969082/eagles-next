@@ -6,10 +6,12 @@ import {
   useUplinerStore,
   useAdressStore,
   useStatsStore,
+  dashboardStatsStore,
 } from "@/store/userCounterStore";
 import { useRouter, usePathname } from "next/navigation";
 import { current } from "@reduxjs/toolkit";
 import { lastUserid, X3getTransactionHistory } from "@/config/Method";
+import { useTransactionStore } from "@/store/transactionstore";
 
 // import { io, Socket } from "socket.io-client";
 // import { useSocket } from "./hooks/useSocket";
@@ -22,10 +24,9 @@ interface Notification {
 
 export const Header: React.FC = () => {
   const { address, isConnected } = useAccount();
-  const [effect, seteffect] = useState(false);
   const pathname = usePathname(); // Get current route
   const currentAddress = useAdressStore.getState().address;
-
+  const { effect } = dashboardStatsStore();
   // const { connect, disconnect, getSocket } = useSocket()
   // const socket = io('http://localhost:5000');
   const router = useRouter();
@@ -76,18 +77,29 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     DashboardStats();
-    transactionX3();
-  }, [effect]);
-  const transactionX3 = async () => {
-    console.log("data");
+  }, []);
 
-    try {
-      let X3 = await X3getTransactionHistory();
-      console.log("data", X3);
-    } catch (error) {
-      console.log("error while getting", error);
-    }
-  };
+  //x3 transactions
+
+  const { fetchAllTransactions, isLoading, shouldRefetch } =
+    useTransactionStore();
+
+  // Fetch transactions when component mounts or when cache expires
+  useEffect(() => {
+    const fetchData = async () => {
+      const shouldRefetchX1X2 = shouldRefetch("x1-x2");
+      const shouldRefetchX3 = shouldRefetch("x3");
+
+      // Force refetch if effect changed OR cache expired
+      if (shouldRefetchX1X2 || shouldRefetchX3 || effect) {
+        console.log("Fetching transaction data in header...");
+        await fetchAllTransactions();
+      }
+    };
+
+    fetchData();
+  }, [fetchAllTransactions, shouldRefetch, effect]);
+
   return (
     <header className="relative z-50 bg-gradient-to-r from-black/80 to-gray-900/80 backdrop-blur-lg border-b border-yellow-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,8 +111,10 @@ export const Header: React.FC = () => {
             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
             </div>
-            <button onClick={() => seteffect(!effect)}>bilal bondi</button>
-            <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+            <h1
+              onClick={() => router.push("/")}
+              className="text-base sm:text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent"
+            >
               THE EAGLES.IO
             </h1>
           </div>

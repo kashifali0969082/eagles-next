@@ -11,6 +11,7 @@ import { RiLockLine, RiStarFill } from "react-icons/ri";
 import { FiTarget, FiTrendingUp, FiAward } from "react-icons/fi";
 import ParticleBackground from "../components/particle";
 import {
+  dashboardStatsStore,
   useAdressStore,
   useUserId,
   useUserLevels,
@@ -35,7 +36,7 @@ interface Level {
   maxUsers: number;
   recycleCount: number;
   locked: boolean;
-  name:string
+  name: string;
 }
 
 interface ProgressBarProps {
@@ -77,6 +78,8 @@ const Levelx2Enhanced: React.FC = () => {
   const userid = useUserId.getState().userIDper;
   const [showAnimation, setShowAnimation] = useState<boolean>(false);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+  const settranstable = dashboardStatsStore.getState().seteffect;
+  const effect = dashboardStatsStore.getState().effect;
 
   const [userData, setUserData] = useState<UserData>({
     id: userid,
@@ -100,16 +103,11 @@ const Levelx2Enhanced: React.FC = () => {
       await getTxn(usdtApp);
       const approvetx = await activateLevel("2", level.toString());
       await getTxn(approvetx);
-  const newActive = activeLevel + 1;
-  setActiveLevel(newActive);      // setActiveLevel((prevLevel) => Math.min(Number(prevLevel) + 1, 12));
-      // Your activation logic here
-      // Example:
-      // const val = (cost * 1e18).toString();
-      // const usdtApp = await USDTapprove(val);
-      // await getTxn(usdtApp);
-      // const approvetx = await activateLevel('1', level.toString());
-      // await getTxn(approvetx);
-  useX2LevelStore.getState().unlockLevelsUpTo(newActive);
+      const newActive = activeLevel + 1;
+      settranstable(!effect);
+
+      setActiveLevel(newActive);
+      useX2LevelStore.getState().unlockLevelsUpTo(newActive);
 
       await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulated delay
       // setActiveLevel(level);
@@ -236,7 +234,7 @@ const Levelx2Enhanced: React.FC = () => {
                     </span>
                     {isActive}
                   </div>
-                  <div className="text-xl font-semibold text-white" >
+                  <div className="text-xl font-semibold text-white">
                     {level.name}
                   </div>
                   <div className="text-right">
@@ -256,20 +254,20 @@ const Levelx2Enhanced: React.FC = () => {
                           <FaStop className="text-gray-500 w-6 h-6" />
                           <span className="text-xs text-gray-500">Locked</span>
                         </div>
-                         <div className="flex justify-between text-sm">
-                            <div className="flex items-center space-x-1 text-teal-400">
-                              <GoPeople className="w-4 h-4" />
-                              <span>
-                                {level.recycleCount >= 1
-                                  ? level.recycleCount * 4 + slotFilled
-                                  : slotFilled}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1 text-cyan-400">
-                              <HiOutlineArrowPath className="w-4 h-4" />
-                              <span>{level.recycleCount}</span>
-                            </div>
+                        <div className="flex justify-between text-sm">
+                          <div className="flex items-center space-x-1 text-teal-400">
+                            <GoPeople className="w-4 h-4" />
+                            <span>
+                              {level.recycleCount >= 1
+                                ? level.recycleCount * 4 + slotFilled
+                                : slotFilled}
+                            </span>
                           </div>
+                          <div className="flex items-center space-x-1 text-cyan-400">
+                            <HiOutlineArrowPath className="w-4 h-4" />
+                            <span>{level.recycleCount}</span>
+                          </div>
+                        </div>
                       </>
                     ) : (
                       <>

@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { getIdToAddress, USDTapprove, getTxn, register } from "@/config/Method";
 import { usdtdecimals } from "@/config/exports";
 import { toast, ToastContainer } from "react-toastify";
+import { dashboardStatsStore } from "@/store/userCounterStore";
 
 const RegistrationPage: React.FC = () => {
   const [uplineId, setUplineId] = useState("1");
@@ -15,6 +16,8 @@ const RegistrationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
   const router = useRouter();
+  const effect = dashboardStatsStore.getState().effect;
+  const settranstable = dashboardStatsStore.getState().seteffect;
 
   const handleRegistration = async () => {
     setIsLoading(true);
@@ -61,6 +64,8 @@ const RegistrationPage: React.FC = () => {
         }
 
         const receipt = await getTxn(approveTx);
+        settranstable(!effect);
+
         if (!receipt) {
           console.error("❌ USDT Approval transaction failed.");
           toast("Approval failed. Please check your wallet.");
@@ -201,7 +206,7 @@ const RegistrationPage: React.FC = () => {
             <button
               onClick={handleRegistration}
               className={`w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-black font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-yellow-500/25 `}
-            disabled={isLoading}
+              disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">

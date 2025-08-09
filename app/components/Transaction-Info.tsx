@@ -1,191 +1,51 @@
-import { useState, useEffect } from "react";
-import { User, ExternalLink, Clock, Zap, ArrowUpRight, ArrowDownLeft, XCircle, CheckCircle, Users, Download } from "lucide-react";
-import { users, X3getTransactionHistory, X3Users } from "@/config/Method";
-
-// Define the transaction type from your data
-interface Transaction {
-  sender: string;
-  amount: bigint;
-  timestamp: bigint;
-  transactionType: string;
-}
-
-// Processed transaction type for display
-interface ProcessedTransaction {
-  id: string;
-  type: string;
-  level: string;
-  amount: string;
-  status: string;
-  timestamp: string;
-  hash: string;
-  from: string;
-  to: string;
-  userId: string; // Added userId field
-}
+"use client";
+import { useState } from "react";
+import {
+  User,
+  Clock,
+  Zap,
+  ArrowUpRight,
+  ArrowDownLeft,
+  XCircle,
+  CheckCircle,
+  Users,
+} from "lucide-react";
+import { useTransactionStore } from "@/store/transactionstore";
+import { ContractType, TransactionFilter } from './types/types';
 
 // Transaction History Component
 export const TransactionHistory: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("x1-x2");
-  const [transactionFilter, setTransactionFilter] = useState("all");
-  const [transactions, setTransactions] = useState<{
-    "x1-x2": ProcessedTransaction[];
-    x3: ProcessedTransaction[];
-  }>({
-    "x1-x2": [],
-    x3: []
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ContractType>("x1-x2");
+  const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>("all");
 
-  // Function to validate Ethereum address
-  const isValidAddress = (address: string): boolean => {
-    return !!(address && address !== "0x0000000000000000000000000000000000000000" && address.length === 42 && address.startsWith("0x"));
+  // Zustand store hooks
+  const {
+    getTransactions,
+    isLoading,
+    hasError,
+    getError,
+    fetchX1X2Transactions,
+    fetchX3Transactions,
+    clearErrors,
+  } = useTransactionStore();
+
+  // Get current tab data from store
+  const transactions = getTransactions(activeTab);
+  const loading = isLoading(activeTab);
+  const error = getError(activeTab);
+
+  const getFilteredTransactions = () => {
+    if (transactionFilter === "all") return transactions;
+    return transactions.filter((tx) => tx.status === transactionFilter);
   };
 
-  // Function to convert BigInt timestamp to readable date
-  const formatTimestamp = (timestamp: bigint): string => {
-    try {
-      const date = new Date(Number(timestamp) * 1000);
-      return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }).replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2})/, '$3-$1-$2 $4');
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
-  // Function to convert Wei to readable amount (assuming 8 decimals based on your data)
-  const formatAmount = (amount: bigint): string => {
-    try {
-      // Convert from wei to token amount (assuming 8 decimals)
-      const divisor = BigInt(1000000); // 10^8
-      const tokenAmount = Number(amount) / Number(divisor);
-      return tokenAmount.toFixed(2);
-    } catch (error) {
-      return "0.00";
-    }
-  };
-
-  // Function to extract level from transaction type
-  const extractLevel = (transactionType: string): string => {
-    return "X3"; // Default for Registration
-  };
-
-  // Function to determine transaction type category
-  const getTransactionTypeCategory = (transactionType: string): string => {
-    if (transactionType.includes("Registration")) return "registration";
-    if (transactionType.includes("Activation")) return "upgrade";
-    return "reward";
-  };
-
-  // Fixed getuserid function with proper error handling
-  const getuserid = async (add: string): Promise<string> => {
-    try {
-      let resp = await users(add) as [string, bigint, bigint, bigint, bigint, bigint, bigint];
-      return Number(resp[1]).toString();
-    } catch (error) {
-      console.log("error while getting id for address:", add);
-      return "Unknown"; // Return a default value instead of undefined
-    }
-  };
-
-  // Updated function to process raw transactions with async user ID fetching
-  const processTransactions = async (rawTransactions: Transaction[]): Promise<ProcessedTransaction[]> => {
-    const filteredTransactions = rawTransactions.filter(
-      tx => isValidAddress(tx.sender) && tx.transactionType && tx.transactionType.trim() !== ""
-    );
-
-    // Process transactions with async user ID fetching
-    const processedTransactions = await Promise.all(
-      filteredTransactions.map(async (tx, index) => {
-        const userId = await getuserid(tx.sender);
-        
-        return {
-          id: `${tx.sender}-${tx.timestamp}-${index}`,
-          type: getTransactionTypeCategory(tx.transactionType),
-          level: extractLevel(tx.transactionType),
-          amount: formatAmount(tx.amount),
-          status: "completed", // All fetched transactions are completed
-          timestamp: formatTimestamp(tx.timestamp),
-          hash: `${tx.sender.slice(0, 6)}...${tx.sender.slice(-4)}`,
-          from: tx.sender,
-          to: tx.sender, // Assuming same for now, you can modify based on your needs
-          userId: userId // Now properly awaited
-        };
-      })
-    );
-
-    return processedTransactions;
-  };
-
-  // Function to fetch X3 transaction data
-  const fetchX3Transactions = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Replace this with your actual X3getTransactionHistory function call
-      const X3Data = await X3getTransactionHistory();
-      console.log("X3 Transaction data:", X3Data);
-      
-      // Process transactions with async user ID fetching
-      const processedX3Transactions = await processTransactions(X3Data as Transaction[]);
-      
-      setTransactions(prev => ({
-        ...prev,
-        x3: processedX3Transactions
-      }));
-    } catch (error) {
-      console.error("Error while getting X3 transactions:", error);
-      setError("Failed to load X3 transactions");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to fetch X1-X2 transaction data (you can implement this similarly)
-  const fetchX1X2Transactions = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Replace this with your actual X1/X2 transaction history function
-      // const X1X2Data = await X1X2getTransactionHistory();
-      // const processedX1X2Transactions = await processTransactions(X1X2Data);
-      
-      // For now, using empty array - replace with actual implementation
-      setTransactions(prev => ({
-        ...prev,
-        "x1-x2": []
-      }));
-    } catch (error) {
-      console.error("Error while getting X1-X2 transactions:", error);
-      setError("Failed to load X1-X2 transactions");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch data on component mount and when tab changes
-  useEffect(() => {
+  const handleRetry = () => {
+    clearErrors(activeTab);
     if (activeTab === "x3") {
       fetchX3Transactions();
     } else {
       fetchX1X2Transactions();
     }
-  }, [activeTab]);
-
-  const getFilteredTransactions = () => {
-    const currentTransactions = transactions[activeTab as keyof typeof transactions] || [];
-    if (transactionFilter === "all") return currentTransactions;
-    return currentTransactions.filter((tx) => tx.status === transactionFilter);
   };
 
   const getStatusIcon = (status: string) => {
@@ -234,7 +94,7 @@ export const TransactionHistory: React.FC = () => {
         <div className="mb-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
           <p className="text-red-400 text-sm">{error}</p>
           <button
-            onClick={() => activeTab === "x3" ? fetchX3Transactions() : fetchX1X2Transactions()}
+            onClick={handleRetry}
             className="mt-2 text-red-300 hover:text-red-100 text-xs underline"
           >
             Retry
@@ -253,11 +113,17 @@ export const TransactionHistory: React.FC = () => {
           }`}
         >
           <span className="flex items-center justify-center space-x-2">
-            <span className={activeTab === "x1-x2" ? "text-white" : "text-teal-300"}>
+            <span
+              className={activeTab === "x1-x2" ? "text-white" : "text-teal-300"}
+            >
               X1
             </span>
             <span>/</span>
-            <span className={activeTab === "x1-x2" ? "text-white" : "text-emerald-300"}>
+            <span
+              className={
+                activeTab === "x1-x2" ? "text-white" : "text-emerald-300"
+              }
+            >
               X2
             </span>
             <span>Contract</span>
@@ -272,12 +138,28 @@ export const TransactionHistory: React.FC = () => {
           }`}
         >
           <span className="flex items-center justify-center space-x-2">
-            <span className={activeTab === "x3" ? "text-white" : "text-purple-300"}>
+            <span
+              className={activeTab === "x3" ? "text-white" : "text-purple-300"}
+            >
               X3
             </span>
             <span>Contract</span>
           </span>
         </button>
+      </div>
+
+      {/* Optional: Transaction Filter */}
+      <div className="mb-4">
+        <select
+          value={transactionFilter}
+          onChange={(e) => setTransactionFilter(e.target.value as TransactionFilter)}
+          className="bg-gray-800/50 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+        >
+          <option value="all">All Transactions</option>
+          <option value="completed">Completed</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
       </div>
 
       {/* Transaction Table */}
@@ -289,7 +171,7 @@ export const TransactionHistory: React.FC = () => {
                 Type
               </th>
               <th className="text-left py-3 px-4 text-gray-400 text-sm font-medium">
-                Level
+                Matrix
               </th>
               <th className="text-left py-3 px-4 text-gray-400 text-sm font-medium">
                 Amount
@@ -306,7 +188,7 @@ export const TransactionHistory: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {getFilteredTransactions().map((tx) => (
+            {getFilteredTransactions().map((tx:any) => (
               <tr
                 key={tx.id}
                 className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors"
@@ -362,7 +244,6 @@ export const TransactionHistory: React.FC = () => {
                     </span>
                   </div>
                 </td>
-              
               </tr>
             ))}
           </tbody>
