@@ -71,20 +71,36 @@ interface NotificationModalProps {
   onClose: () => void;
 }
 
-// Notification Modal Component
 const NotificationModal: React.FC<NotificationModalProps> = ({
   isOpen,
   onClose,
 }) => {
   const { entries } = useEntriesStore();
   const currentAddress = useAdressStore.getState().address;
+  const [userDataCache, setUserDataCache] = useState<{
+    [address: string]: string;
+  }>({});
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [processedNotifications, setProcessedNotifications] = useState<any[]>(
+    []
+  );
+  const router = useRouter();
 
   console.log("entries data:", entries);
+
   useEffect(() => {
     if (isOpen === true) {
       seen();
     }
   }, [isOpen]);
+
+  // Process notifications when entries or userDataCache changes
+  useEffect(() => {
+    if (isOpen && entries.length > 0) {
+      processNotifications();
+    }
+  }, [isOpen, entries, userDataCache]);
+
   const seen = async () => {
     try {
       let val = await axios.get(`${ApiUrl}/setTrue/${currentAddress}`);
@@ -98,26 +114,138 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       console.log("error while seen api", error);
     }
   };
+
+  // Helper function to format address with async user data fetching
+  const formatAddress = async (address: string) => {
+    try {
+      let val = (await users(address)) as [
+        string,
+        BigInt,
+        BigInt,
+        BigInt,
+        BigInt,
+        BigInt,
+        BigInt
+      ];
+      return Number(val[1]).toString();
+    } catch (error) {
+      console.error(`Error fetching user data for ${address}:`, error);
+      return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    }
+  };
+
+  // Function to get user ID for an address (with caching)
+  const getUserId = async (address: string): Promise<string> => {
+    // Return cached data if available
+    if (userDataCache[address]) {
+      return userDataCache[address];
+    }
+
+    // Fetch and cache the data
+    const formattedAddress = await formatAddress(address);
+    setUserDataCache((prev) => ({
+      ...prev,
+      [address]: formattedAddress,
+    }));
+
+    return formattedAddress;
+  };
+
+  // Handle notification click to show details
+  const handleNotificationClick = (notification: any) => {
+    const { originalData } = notification;
+
+    if (originalData.to) {
+      const toId = userDataCache[originalData.from] || "Loading...";
+      router.push(`/IdSearch?id=${toId}`);
+    }
+  };
+  // Process all notifications with async user data
+  const processNotifications = async () => {
+    if (!entries || !Array.isArray(entries)) {
+      setProcessedNotifications([]);
+      return;
+    }
+
+    setIsLoadingUsers(true);
+
+    try {
+      // Get all unique addresses that need user data
+      const uniqueAddresses = new Set<string>();
+      entries.forEach((entry) => {
+        if (entry.from) uniqueAddresses.add(entry.from);
+        if (entry.to) uniqueAddresses.add(entry.to);
+      });
+
+      // Fetch user data for addresses not in cache
+      const addressesToFetch = Array.from(uniqueAddresses).filter(
+        (addr) => !userDataCache[addr]
+      );
+
+      if (addressesToFetch.length > 0) {
+        const userDataPromises = addressesToFetch.map(async (address) => {
+          const userData = await getUserId(address);
+          return { address, userData };
+        });
+
+        await Promise.all(userDataPromises);
+      }
+
+      // Now transform entries to notifications with all user data available
+      const transformedNotifications = await Promise.all(
+        entries.map(async (entry) => {
+          const isRegistration =
+            entry.level === 1 && (entry.matrix === 1 || entry.matrix === 2);
+          const matrixDisplay = entry.matrix || "X3";
+
+          let title, message, type;
+
+          // Get formatted addresses (user IDs)
+          const fromAddress = entry.from ? await getUserId(entry.from) : "";
+          const toAddress = entry.to ? await getUserId(entry.to) : "";
+
+          if (isRegistration) {
+            title = "New Registration";
+            message = `ID ${fromAddress} registered in Matrix ${matrixDisplay} - Amount: ${formatAmount(
+              entry.amount
+            )} BUSD`;
+            type = "success";
+          } else {
+            title = "Level Upgrade";
+            message = `You received ${formatAmount(
+              entry.amount
+            )} USD from ID ${fromAddress} by level upgrade (Level ${
+              entry.level
+            }, Matrix ${matrixDisplay})`;
+            type = "success";
+          }
+
+          return {
+            id: entry._id,
+            type,
+            title,
+            message,
+            timestamp: formatDate(entry.createdAt || new Date().toISOString()),
+            read: entry.seen,
+            originalData: entry,
+          };
+        })
+      );
+
+      setProcessedNotifications(transformedNotifications);
+    } catch (error) {
+      console.error("Error processing notifications:", error);
+      setProcessedNotifications([]);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   // Helper function to format amount (assuming it's in wei or similar)
   const formatAmount = (amount: number) => {
     return (amount / 1000000).toFixed(1); // Convert to readable format
-  };
-
-  // Helper function to format address
-  const formatAddress = async (address: string) => {
-    // return `${address.slice(0, 6)}...${address.slice(-4)}`;
-      let val = (await users(currentAddress)) as [
-          string,
-          BigInt,
-          BigInt,
-          BigInt,
-          BigInt,
-          BigInt,
-          BigInt
-        ];
-        return[val[1]]
   };
 
   // Helper function to format date
@@ -138,49 +266,6 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   };
 
-  // Transform entries data to notifications
-  const transformEntriesToNotifications = (entries: any[]) => {
-    if (!entries || !Array.isArray(entries)) return [];
-
-    return entries.map((entry) => {
-      const isRegistration =
-        entry.level === 1 && (entry.matrix === 1 || entry.matrix === 2);
-      const matrixDisplay = entry.matrix || "X3";
-
-      let title, message, type;
-
-      if (isRegistration) {
-        title = "New Registration";
-        message = `${formatAddress(
-          entry.from
-        )} registered in Matrix ${matrixDisplay} - Amount: ${formatAmount(
-          entry.amount
-        )} BUSD`;
-        type = "success";
-      } else {
-        title = "Level Upgrade";
-        message = `${formatAddress(entry.to)} received ${formatAmount(
-          entry.amount
-        )} USD from ${formatAddress(entry.from)} by level upgrade (Level ${
-          entry.level
-        }, Matrix ${matrixDisplay})`;
-        type = "success";
-      }
-
-      return {
-        id: entry._id,
-        type,
-        title,
-        message,
-        timestamp: formatDate(entry.createdAt),
-        read: entry.seen,
-        originalData: entry,
-      };
-    });
-  };
-
-  const notifications = transformEntriesToNotifications(entries);
-
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "success":
@@ -193,7 +278,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = processedNotifications.filter((n) => !n.read).length;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -205,8 +290,16 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             <h2 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
               Notifications
             </h2>
+            {isLoadingUsers && (
+              <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+            )}
           </div>
           <div className="flex items-center space-x-2">
+            {unreadCount > 0 && (
+              <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {unreadCount}
+              </span>
+            )}
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800/50 rounded-lg"
@@ -218,16 +311,22 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
         {/* Notifications List */}
         <div className="max-h-[60vh] overflow-y-auto">
-          {!notifications || notifications.length === 0 ? (
+          {isLoadingUsers ? (
+            <div className="p-8 text-center">
+              <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+              <p className="text-slate-400">Loading user data...</p>
+            </div>
+          ) : !processedNotifications || processedNotifications.length === 0 ? (
             <div className="p-8 text-center">
               <Bell className="w-12 h-12 text-slate-500 mx-auto mb-3" />
               <p className="text-slate-400">No notifications yet</p>
             </div>
           ) : (
             <div className="p-2">
-              {notifications.map((notification) => (
+              {processedNotifications.map((notification) => (
                 <div
                   key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
                   className={`p-4 m-2 rounded-xl border transition-all duration-300 cursor-pointer hover:scale-[1.02] ${
                     notification.read
                       ? "bg-slate-800/30 border-slate-600/40 hover:bg-slate-800/40"
@@ -245,6 +344,9 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                         <h3 className="text-white font-semibold text-sm truncate">
                           {notification.title}
                         </h3>
+                        <span className="text-xs text-slate-400 ml-2">
+                          Click for details
+                        </span>
                       </div>
                       <p className="text-slate-300 text-sm mb-2 leading-relaxed">
                         {notification.message}
