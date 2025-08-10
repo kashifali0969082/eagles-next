@@ -1,6 +1,6 @@
 // Header.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef} from "react";
 import { Zap } from "lucide-react";
 import { YourApp } from "./custombtn";
 import { useAccount } from "wagmi";
@@ -23,6 +23,8 @@ export const Header: React.FC = () => {
   const { entries, setAll, addNew } = useEntriesStore();
   const currentAddress = useAdressStore.getState().address;
   const { effect } = dashboardStatsStore();
+  const { fetchDistributionData, transactions } = useDistributionStore();
+  const prevPathRef = useRef(null);
 
   // Ensure we’re connected once the header mounts
   useEffect(() => {
@@ -67,7 +69,8 @@ export const Header: React.FC = () => {
     if (
       currentAddress !== address &&
       pathname !== "/" &&
-      !pathname.startsWith("/IdSearch")
+      !pathname.startsWith("/IdSearch") &&
+      prevPathRef.current !== "/IdSearch"
     ) {
       router.push("/login");
     }
@@ -90,6 +93,7 @@ export const Header: React.FC = () => {
   }, []);
 
   //x3 transactions
+
   const { fetchAllTransactions, isLoading, shouldRefetch } =
     useTransactionStore();
 
@@ -105,7 +109,7 @@ export const Header: React.FC = () => {
         await fetchAllTransactions();
       }
     };
-
+    fetchDistributionData();
     fetchData();
   }, [fetchAllTransactions, shouldRefetch, effect]);
 

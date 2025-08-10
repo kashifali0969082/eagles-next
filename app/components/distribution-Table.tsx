@@ -10,7 +10,7 @@ import {
   Coins,
   RefreshCw,
 } from "lucide-react";
-import  { DistributionFilter } from "../components/types/types";
+import { DistributionFilter } from "../components/types/types";
 import {
   getTransactionType,
   getMatrixDisplay,
@@ -19,10 +19,13 @@ import {
   getFilteredTransactions,
 } from "../components/types/distribution-utils";
 import { useDistributionStore } from "@/store/distribution-store";
+import { users } from "@/config/Method";
+import { useRouter, usePathname } from "next/navigation";
 
 const DistributionTable: React.FC = () => {
   const [filter, setFilter] = useState<DistributionFilter>("all");
 
+  const router = useRouter();
   // Zustand store hooks
   const {
     transactions,
@@ -64,7 +67,23 @@ const DistributionTable: React.FC = () => {
       fetchDistributionData();
     }
   }, []);
-
+  const searchfunction = async (address: string) => {
+    try {
+      let val = (await users(address)) as [
+        string,
+        BigInt,
+        BigInt,
+        BigInt,
+        BigInt,
+        BigInt,
+        BigInt
+      ];
+      console.log("val val val", val);
+      router.push(`/IdSearch?id=${Number(val[1])}`);
+    } catch (error) {
+      console.log("error while searching by address", error);
+    }
+  };
   return (
     <div className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-lg border border-yellow-500/20 rounded-xl p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -78,7 +97,6 @@ const DistributionTable: React.FC = () => {
               <span className="text-sm">Loading...</span>
             </div>
           )}
-        
         </div>
       </div>
 
@@ -93,8 +111,6 @@ const DistributionTable: React.FC = () => {
           </button>
         </div>
       )}
-
-   
 
       {/* Transaction Table */}
       <div className="overflow-x-auto">
@@ -156,18 +172,23 @@ const DistributionTable: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
+                    <div
+                      onClick={() => searchfunction(tx.from)}
+                      className="flex items-center space-x-2"
+                    >
                       <User className="w-4 h-4 text-blue-400" />
                       <span className="text-blue-400 font-semibold text-sm">
-                        {getUserIdDisplay(tx.from)}
+                        {`${tx.from.slice(0, 3)}...${tx.from.slice(-3)}`}
                       </span>
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
+                    <div
+                     onClick={() => searchfunction(tx.to)}
+                    className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-green-400" />
                       <span className="text-green-400 font-semibold text-sm">
-                        {getUserIdDisplay(tx.to)}
+                        {`${tx.to.slice(0, 3)}...${tx.to.slice(-3)}`}
                       </span>
                     </div>
                   </td>
@@ -184,9 +205,7 @@ const DistributionTable: React.FC = () => {
                   <td className="py-4 px-4">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-green-400 text-sm">
-                        Completed
-                      </span>
+                      <span className="text-green-400 text-sm">Completed</span>
                     </div>
                   </td>
                 </tr>
@@ -206,35 +225,6 @@ const DistributionTable: React.FC = () => {
       )}
 
       {/* Summary Stats */}
-      {transactions.length > 0 && (
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-gray-800/30 rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Total Transactions</div>
-            <div className="text-white text-xl font-bold">
-              {filteredTransactions.length}
-            </div>
-          </div>
-          <div className="bg-gray-800/30 rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Total Volume</div>
-            <div className="text-white text-xl font-bold">
-              ${filteredTransactions
-                .reduce((sum, tx) => sum + tx.amount, 0)
-                .toLocaleString()}
-            </div>
-          </div>
-          <div className="bg-gray-800/30 rounded-lg p-4">
-            <div className="text-gray-400 text-sm mb-1">Average Amount</div>
-            <div className="text-white text-xl font-bold">
-              ${filteredTransactions.length > 0
-                ? (
-                    filteredTransactions.reduce((sum, tx) => sum + tx.amount, 0) /
-                    filteredTransactions.length
-                  ).toLocaleString()
-                : 0}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

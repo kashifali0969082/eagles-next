@@ -197,6 +197,8 @@ const Levelx3 = () => {
         if (!registerReceipt) throw new Error("Registration failed");
         else {
           const twentyPercentOfCost = (20 / 100) * cost;
+          console.log("cost", totalProfit + twentyPercentOfCost * usdtdecimals);
+
           setTotalProfit(totalProfit + twentyPercentOfCost * usdtdecimals);
           setActiveLevel(level);
           sethr24ProfitProfit(hr24Profit + twentyPercentOfCost);

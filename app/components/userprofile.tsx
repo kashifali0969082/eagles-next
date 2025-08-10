@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import React from "react";
 import {
   useAdressStore,
@@ -25,6 +26,7 @@ import {
 import { useEntriesStore } from "@/store/notification";
 import axios from "axios";
 import { ApiUrl } from "@/config/exports";
+import { users } from "@/config/Method";
 // Type definitions
 interface UserProfile {
   id?: string;
@@ -104,8 +106,18 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   };
 
   // Helper function to format address
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  const formatAddress = async (address: string) => {
+    // return `${address.slice(0, 6)}...${address.slice(-4)}`;
+      let val = (await users(currentAddress)) as [
+          string,
+          BigInt,
+          BigInt,
+          BigInt,
+          BigInt,
+          BigInt,
+          BigInt
+        ];
+        return[val[1]]
   };
 
   // Helper function to format date
@@ -261,6 +273,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
 // Modal Component
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
+  const router = useRouter();
+
   if (!isOpen) return null;
   const userProfile = useProfileStore.getState().profile;
   const handleCopyToClipboard = (text: string) => {
@@ -306,10 +320,18 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
               <h3 className="text-3xl font-bold text-white mb-2">
                 {userProfile?.name || "Name"}
               </h3>
-              <p className="text-yellow-400 font-semibold text-lg mb-1">
+              <p
+                onClick={() => router.push(`${ApiUrl}/IdSearch?id=${userId}`)}
+                className="text-yellow-400 font-semibold text-lg mb-1"
+              >
                 ID: {userId || "0"}
               </p>
-              <p className="text-gray-400">Joined by ID: {UplinerId}</p>
+              <p
+                onClick={() => router.push(`/IdSearch?id=${UplinerId}`)}
+                className="text-gray-400"
+              >
+                Joined by ID: {UplinerId}
+              </p>
             </div>
           </div>
 

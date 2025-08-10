@@ -57,7 +57,21 @@ const unsub = useAdressStore.subscribe(
 const profilefun = async () => {
   console.log("profile function is running");
   const currentAddress = useAdressStore.getState().address;
-
+const defaultProfile = {
+  id: "",
+  name: "name",
+  profileImage: "",
+  description: "description",
+  email: "email@example.com",
+  walletAddress: "wallet_address",
+  socialLinks: {
+    facebook: "",
+    youtube: "",
+    instagram: "",
+    twitter: "",
+    whatsapp: "",
+  },
+};
   try {
     const response = await axios.get(
       `${ApiUrl}/user/profile/${currentAddress}`
@@ -72,6 +86,7 @@ const profilefun = async () => {
     }
   } catch (error) {
     console.error("❌ Error while getting profile:", error);
+      useProfileStore.getState().setProfile(defaultProfile);
   }
 };
 const UplinerId = async () => {

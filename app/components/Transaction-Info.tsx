@@ -12,10 +12,13 @@ import {
 } from "lucide-react";
 import { useTransactionStore } from "@/store/transactionstore";
 import { ContractType, TransactionFilter } from './types/types';
+import { useRouter, usePathname } from "next/navigation";
+
 // Transaction History Component
 export const TransactionHistory: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ContractType>("x1-x2");
   const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>("all");
+  const router = useRouter();
 
   // Zustand store hooks
   const {
@@ -224,7 +227,7 @@ export const TransactionHistory: React.FC = () => {
                   <span className="text-gray-300 text-sm">{tx.timestamp}</span>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="flex items-center space-x-2">
+                  <div onClick={()=>router.push(`/IdSearch?id=${tx.userId}`)} className="flex items-center space-x-2">
                     <User className="w-4 h-4 text-blue-400" />
                     <span className="text-blue-400 font-semibold text-sm">
                       {tx.userId}

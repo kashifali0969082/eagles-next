@@ -2,7 +2,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import { ApiUrl } from '@/config/exports';
-import { users } from '@/config/Method';
 
 // Types for the distribution data
 export interface DistributionTransaction {
@@ -52,7 +51,7 @@ export interface DistributionState {
   
   // Utility Actions
   getUniqueAddresses: () => string[];
-getUserIdDisplay: (address: string) => Promise<string>;
+  getUserIdDisplay: (address: string) => string;
   reset: () => void;
 }
 
@@ -200,23 +199,11 @@ export const useDistributionStore = create<DistributionState>((set, get) => ({
     return Array.from(addresses);
   },
 
-getUserIdDisplay: async (address) => {
-  const { addressIds, isLoadingIds } = get();
-  
-  if (isLoadingIds.has(address)) return "Loading...";
-
-  let val = await users(address) as [
-    string,
-    BigInt,
-    BigInt,
-    BigInt,
-    BigInt,
-    BigInt,
-    BigInt
-  ];
-  
-  return val[1].toString();
-},
+  getUserIdDisplay: (address) => {
+    const { addressIds, isLoadingIds } = get();
+    if (isLoadingIds.has(address)) return "Loading...";
+    return addressIds[address] || addressToId(address);
+  },
 
   reset: () => set({
     transactions: [],

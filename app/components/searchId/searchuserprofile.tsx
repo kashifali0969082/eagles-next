@@ -17,6 +17,8 @@ import {
   useUplinerStore,
   useUserId,
 } from "@/store/userCounterStore";
+import { useRouter, usePathname } from "next/navigation";
+
 // Type definitions
 interface UserProfile {
   id?: string;
@@ -51,6 +53,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   };
   const UplinerId = useUplinerStore((state) => state.uplinerId);
   const userId = useUserId((state) => state.userIDper);
+  const router = useRouter();
+
   console.log("upliner ,user  id  ", UplinerId, userId);
 
   return (
@@ -89,10 +93,18 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
               <h3 className="text-3xl font-bold text-white mb-2">
                 {userProfile?.name || "Name"}
               </h3>
-              <p className="text-yellow-400 font-semibold text-lg mb-1">
+              <p
+                onClick={() => router.push(`/IdSearch?id=${userId}`)}
+                className="text-yellow-400 font-semibold text-lg mb-1"
+              >
                 ID: {userId || "0"}
               </p>
-              <p className="text-gray-400">Joined by ID: {UplinerId}</p>
+              <p
+                onClick={() => router.push(`/IdSearch?id=${UplinerId}`)}
+                className="text-gray-400"
+              >
+                Joined by ID: {UplinerId}
+              </p>
             </div>
           </div>
 
@@ -155,7 +167,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
             </h4>
             <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
               <span className="text-yellow-400 font-mono text-sm flex-1 break-all">
-                theeagles.io/{userId || "0"}
+                theeagles.io/IdSearch?id={userId || "0"}
               </span>
               <button
                 onClick={() =>
@@ -225,7 +237,7 @@ export const UserProfilesear: React.FC<UserProfileProps> = ({
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("sucessfully cpoied!")
+    alert("sucessfully cpoied!");
   };
   return (
     <>
@@ -258,7 +270,6 @@ export const UserProfilesear: React.FC<UserProfileProps> = ({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-         
             <button
               onClick={() => setProfileExpanded(!profileExpanded)}
               className="text-gray-400 hover:text-yellow-400 transition-colors"
@@ -280,7 +291,7 @@ export const UserProfilesear: React.FC<UserProfileProps> = ({
               </p>
               <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
                 <span className="text-yellow-400 font-mono text-sm flex-1">
-                  theeagles.io/{userId || "0"}
+                  theeagles.io/IdSearch?id={userId || "0"}
                 </span>
                 <button
                   onClick={() =>
