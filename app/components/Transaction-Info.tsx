@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useTransactionStore } from "@/store/transactionstore";
 import { ContractType, TransactionFilter } from './types/types';
-
 // Transaction History Component
 export const TransactionHistory: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ContractType>("x1-x2");

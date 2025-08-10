@@ -7,12 +7,22 @@ import { useAccount } from "wagmi";
 import { useRouter, usePathname } from "next/navigation";
 import { useSocket } from "./hooks/useSocket";
 import { useEntriesStore } from "@/store/notification";
+import {
+  dashboardStatsStore,
+  useAdressStore,
+  useStatsStore,
+} from "@/store/userCounterStore";
+import { lastUserid } from "@/config/Method";
+import { useTransactionStore } from "@/store/transactionstore";
+import { useDistributionStore } from "@/store/distribution-store";
 export const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { address, isConnected: wagmiConnected } = useAccount();
   const { isConnected: socketConnected, getSocket, connect } = useSocket();
   const { entries, setAll, addNew } = useEntriesStore();
+  const currentAddress = useAdressStore.getState().address;
+  const { effect } = dashboardStatsStore();
 
   // Ensure we’re connected once the header mounts
   useEffect(() => {
@@ -53,8 +63,52 @@ export const Header: React.FC = () => {
 
   // (Your existing route guard)
   useEffect(() => {
-    // ...your redirect logic here...
-  }, [address, pathname, router]);
+    console.log("use effect chala", currentAddress, address);
+    if (
+      currentAddress !== address &&
+      pathname !== "/" &&
+      !pathname.startsWith("/IdSearch")
+    ) {
+      router.push("/login");
+    }
+  }, [address]);
+  const DashboardStats = async () => {
+    try {
+      const SetUserId = useStatsStore.getState().setTotalUsers;
+
+      let totalMembers = (await lastUserid()) as bigint;
+      console.log("total mem", totalMembers);
+
+      SetUserId(Number(totalMembers));
+    } catch (error) {
+      console.log("error while getting stats", error);
+    }
+  };
+
+  useEffect(() => {
+    DashboardStats();
+  }, []);
+
+  //x3 transactions
+  const { fetchAllTransactions, isLoading, shouldRefetch } =
+    useTransactionStore();
+
+  // Fetch transactions when component mounts or when cache expires
+  useEffect(() => {
+    const fetchData = async () => {
+      const shouldRefetchX1X2 = shouldRefetch("x1-x2");
+      const shouldRefetchX3 = shouldRefetch("x3");
+
+      // Force refetch if effect changed OR cache expired
+      if (shouldRefetchX1X2 || shouldRefetchX3 || effect) {
+        console.log("Fetching transaction data in header...");
+        await fetchAllTransactions();
+      }
+    };
+
+    fetchData();
+  }, [fetchAllTransactions, shouldRefetch, effect]);
+
   console.log("taste", entries);
 
   return (

@@ -53,3 +53,29 @@ export interface TransactionState {
 export type ContractType = "x1-x2" | "x3";
 export type TransactionFilter = "all" | "completed" | "pending" | "failed";
 export type TransactionTypeCategory = "registration" | "upgrade" | "reward" | "transaction" | "referral";
+
+
+
+
+// types/distributionTypes.ts
+
+export interface DistributionTransaction {
+  _id: string;
+  from: string;
+  to: string;
+  amount: number;
+  level?: number;
+  matrix?: number;
+  createdAt: string;
+  updatedAt: string;
+  seen: boolean;
+  __v: number;
+}
+
+export interface AddressIdMapping {
+  [address: string]: string;
+}
+
+export type DistributionFilter = "all" | "registration" | "matrix";
+
+export type TransactionType = "reward" | "matrix" | "registration" | "distribution";

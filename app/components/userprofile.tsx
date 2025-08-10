@@ -14,15 +14,17 @@ import {
   Info,
   AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import {
+  useAdressStore,
   useProfileStore,
   useUplinerStore,
   useUserId,
 } from "@/store/userCounterStore";
 import { useEntriesStore } from "@/store/notification";
-
+import axios from "axios";
+import { ApiUrl } from "@/config/exports";
 // Type definitions
 interface UserProfile {
   id?: string;
@@ -55,16 +57,12 @@ interface UserProfileProps {
 
 // Sample notifications data
 
-
 // Notification Modal Component
-
 
 interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -77,14 +75,32 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   onClose,
 }) => {
   const { entries } = useEntriesStore();
-
-  if (!isOpen) return null;
+  const currentAddress = useAdressStore.getState().address;
 
   console.log("entries data:", entries);
+  useEffect(() => {
+    if (isOpen === true) {
+      seen();
+    }
+  }, [isOpen]);
+  const seen = async () => {
+    try {
+      let val = await axios.get(`${ApiUrl}/setTrue/${currentAddress}`);
+      useEntriesStore.setState((state) => ({
+        entries: state.entries.map((entry) => ({
+          ...entry,
+          seen: true,
+        })),
+      }));
+    } catch (error) {
+      console.log("error while seen api", error);
+    }
+  };
+  if (!isOpen) return null;
 
   // Helper function to format amount (assuming it's in wei or similar)
   const formatAmount = (amount: number) => {
-    return (amount / 1000000).toFixed(2); // Convert to readable format
+    return (amount / 1000000).toFixed(1); // Convert to readable format
   };
 
   // Helper function to format address
@@ -96,11 +112,14 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+
     if (diffInMinutes < 60) {
       return `${diffInMinutes} minutes ago`;
-    } else if (diffInMinutes < 1440) { // 24 hours
+    } else if (diffInMinutes < 1440) {
+      // 24 hours
       return `${Math.floor(diffInMinutes / 60)} hours ago`;
     } else {
       return `${Math.floor(diffInMinutes / 1440)} days ago`;
@@ -110,21 +129,30 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   // Transform entries data to notifications
   const transformEntriesToNotifications = (entries: any[]) => {
     if (!entries || !Array.isArray(entries)) return [];
-    
+
     return entries.map((entry) => {
-      const isRegistration = entry.level === 1 && (entry.matrix === 1 || entry.matrix === 2);
+      const isRegistration =
+        entry.level === 1 && (entry.matrix === 1 || entry.matrix === 2);
       const matrixDisplay = entry.matrix || "X3";
-      
+
       let title, message, type;
-      
+
       if (isRegistration) {
         title = "New Registration";
-        message = `${formatAddress(entry.from)} registered in Matrix ${matrixDisplay} - Amount: ${formatAmount(entry.amount)} BUSD`;
+        message = `${formatAddress(
+          entry.from
+        )} registered in Matrix ${matrixDisplay} - Amount: ${formatAmount(
+          entry.amount
+        )} BUSD`;
         type = "success";
       } else {
         title = "Level Upgrade";
-        message = `${formatAddress(entry.to)} received ${formatAmount(entry.amount)} BUSD from ${formatAddress(entry.from)} by level upgrade (Level ${entry.level}, Matrix ${matrixDisplay})`;
-        type = "info";
+        message = `${formatAddress(entry.to)} received ${formatAmount(
+          entry.amount
+        )} USD from ${formatAddress(entry.from)} by level upgrade (Level ${
+          entry.level
+        }, Matrix ${matrixDisplay})`;
+        type = "success";
       }
 
       return {
@@ -134,7 +162,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         message,
         timestamp: formatDate(entry.createdAt),
         read: entry.seen,
-        originalData: entry
+        originalData: entry,
       };
     });
   };
@@ -153,17 +181,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   };
 
-  const markAsRead = (id: string) => {
-    // You can implement API call here to mark as read
-    console.log(`Marking notification ${id} as read`);
-  };
-
-  const markAllAsRead = () => {
-    // You can implement API call here to mark all as read
-    console.log("Marking all notifications as read");
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -172,22 +190,11 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50 bg-gradient-to-r from-indigo-900/20 to-purple-900/20">
           <div className="flex items-center space-x-2">
             <Bell className="w-5 h-5 text-indigo-400" />
-            <h2 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Notifications</h2>
-            {unreadCount > 0 && (
-              <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">
-                {unreadCount}
-              </span>
-            )}
+            <h2 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+              Notifications
+            </h2>
           </div>
           <div className="flex items-center space-x-2">
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-indigo-400 hover:text-indigo-300 text-sm transition-all duration-200 hover:bg-indigo-500/10 px-2 py-1 rounded"
-              >
-                Mark all read
-              </button>
-            )}
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800/50 rounded-lg"
@@ -216,7 +223,6 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                       ? "bg-gradient-to-r from-emerald-900/20 to-green-900/20 border-emerald-500/40 hover:from-emerald-900/30 hover:to-green-900/30"
                       : "bg-gradient-to-r from-indigo-900/20 to-cyan-900/20 border-indigo-500/40 hover:from-indigo-900/30 hover:to-cyan-900/30"
                   }`}
-                  onClick={() => markAsRead(notification.id)}
                 >
                   <div className="flex items-start space-x-3">
                     <div className="flex-shrink-0 mt-1 p-2 rounded-full bg-slate-800/50">
@@ -227,9 +233,6 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                         <h3 className="text-white font-semibold text-sm truncate">
                           {notification.title}
                         </h3>
-                        {!notification.read && (
-                          <div className="w-2 h-2 bg-gradient-to-r from-orange-400 to-red-400 rounded-full flex-shrink-0 ml-2 animate-pulse" />
-                        )}
                       </div>
                       <p className="text-slate-300 text-sm mb-2 leading-relaxed">
                         {notification.message}
@@ -251,21 +254,10 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             </div>
           )}
         </div>
-
-        {/* Footer */}
-        {notifications && notifications.length > 0 && (
-          <div className="p-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-gray-800/30 text-center">
-            <button className="text-indigo-400 hover:text-indigo-300 text-sm transition-all duration-200 hover:bg-indigo-500/10 px-3 py-1 rounded-lg">
-              View All Notifications
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
 };
-
-
 
 // Modal Component
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
@@ -443,22 +435,29 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const userId = useUserId((state) => state.userIDper);
+  const { entries } = useEntriesStore();
+  const hasUnseenEntries = () => {
+    if (!entries || entries.length === 0) return false;
+    return entries.some((entry) => !entry.seen);
+  };
 
+  // Usage
+  const showNotificationIndicator = hasUnseenEntries();
   const handleNameClick = () => {
     setIsModalOpen(true);
   };
-  
+
   const handleNotificationClick = () => {
     setIsNotificationModalOpen(true);
   };
-  
+
   const userProfile = useProfileStore.getState().profile;
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     alert("Successfully copied!");
   };
-  
+
   return (
     <>
       <div className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-lg border border-yellow-500/20 rounded-2xl p-6 mb-8">
@@ -496,11 +495,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             >
               <Bell className="w-4 h-4" />
               {/* Animated notification indicator dot */}
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
-                {/* Ripple animation */}
-                <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></span>
-              </span>
+              {hasUnseenEntries() && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="w-1.5 h-1.5 bg-red rounded-full"></span>
+                  {/* Ripple animation */}
+                  <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></span>
+                </span>
+              )}
             </button>
             <button
               onClick={onEditProfile}
@@ -556,7 +557,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-      
+
       {/* Notification Modal */}
       <NotificationModal
         isOpen={isNotificationModalOpen}

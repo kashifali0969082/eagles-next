@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { UserProfilesear } from "../components/searchId/searchuserprofile";
 import { LevelProgressser } from "../components/searchId/searchlevelprogress";
 import { getIdToAddress, isUserExists } from "@/config/Method";
+import DistributionTable from "../components/distribution-Table";
 
 const Idsearch: React.FC = () => {
   const searchParams = useSearchParams();
@@ -33,13 +34,13 @@ const Idsearch: React.FC = () => {
   console.log("id", id);
   useEffect(() => {
     console.log("id useeffect is working");
-    
-    handleSearch()
+
+    handleSearch();
   }, [id]);
 
   const handleSearch = async () => {
     console.log("id handle search is working");
-    
+
     // if (!searchId.trim()) {
     //   setSearchError("Please enter a valid ID");
     //   return;
@@ -50,20 +51,19 @@ const Idsearch: React.FC = () => {
 
     try {
       console.log("id in try block");
-      
+
       let resp = await getIdToAddress(id as string);
-      console.log("id resp",resp);
-      
+      console.log("id resp", resp);
+
       let final = await isUserExists(resp as string);
-      console.log("id final is",final);
+      console.log("id final is", final);
       if (!final) {
-        
         setSearchError("User not found. Please check the ID and try again.");
         setSearchResult(null);
         setIsLoading(false);
       } else {
-        console.log("id resp",resp);
-        
+        console.log("id resp", resp);
+
         setAddress(resp as string);
       }
     } catch (error) {
@@ -133,6 +133,7 @@ const Idsearch: React.FC = () => {
         <PlatformStatistics />
         <ContractInformation />
         <TransactionHistory />
+        <DistributionTable />
 
         {/* Profile Modal */}
         <ProfileModal

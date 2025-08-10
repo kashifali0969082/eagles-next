@@ -11,6 +11,7 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { useAdressStore, useStatsStore } from "@/store/userCounterStore";
 import { useProfileStore } from "@/store/userCounterStore";
+import DistributionTable from "../components/distribution-Table";
 
 // Main Dashboard Component
 const Dashboard: React.FC = () => {
@@ -19,28 +20,28 @@ const Dashboard: React.FC = () => {
   const [userProfile, setUserProfile] = useState(null);
   const currentAddress = useAdressStore.getState().address;
   const { address, isConnected, isDisconnected } = useAccount();
-    const { totalUsers} = useStatsStore();
+  const { totalUsers } = useStatsStore();
 
   const router = useRouter();
-const formData= {
-        id: "",
-        name: "",
-        email: "",
-        description: "",
-        walletAddress: "",
-        profileImage: "",
-        socialLinks: {
-          facebook:  "",
-          youtube:  "",
-          instagram: "",
-          twitter:  "",
-          whatsapp: "",
-        },
-      };
+  const formData = {
+    id: "",
+    name: "",
+    email: "",
+    description: "",
+    walletAddress: "",
+    profileImage: "",
+    socialLinks: {
+      facebook: "",
+      youtube: "",
+      instagram: "",
+      twitter: "",
+      whatsapp: "",
+    },
+  };
 
   useEffect(() => {
     if (isDisconnected || address != currentAddress) {
-              useProfileStore.getState().setProfile(formData);
+      useProfileStore.getState().setProfile(formData);
       router.push("login");
     }
   }, [isDisconnected, address]);
@@ -90,6 +91,7 @@ const formData= {
         <PlatformStatistics />
         <ContractInformation />
         <TransactionHistory />
+        <DistributionTable />
 
         {/* Profile Modal */}
         <ProfileModal
