@@ -23,25 +23,25 @@ const Dashboard: React.FC = () => {
   const { totalUsers } = useStatsStore();
 
   const router = useRouter();
-  const formData = {
-    id: "",
-    name: "",
-    email: "",
-    description: "",
-    walletAddress: "",
-    profileImage: "",
-    socialLinks: {
-      facebook: "",
-      youtube: "",
-      instagram: "",
-      twitter: "",
-      whatsapp: "",
-    },
-  };
+  // const formData = {
+  //   id: "",
+  //   name: "",
+  //   email: "",
+  //   description: "",
+  //   walletAddress: "",
+  //   profileImage: "",
+  //   socialLinks: {
+  //     facebook: "",
+  //     youtube: "",
+  //     instagram: "",
+  //     twitter: "",
+  //     whatsapp: "",
+  //   },
+  // };
 
   useEffect(() => {
     if (isDisconnected || address != currentAddress) {
-      useProfileStore.getState().setProfile(formData);
+      // useProfileStore.getState().setProfile();
       router.push("login");
     }
   }, [isDisconnected, address]);

@@ -51,7 +51,7 @@ export interface DistributionState {
   
   // Utility Actions
   getUniqueAddresses: () => string[];
-  getUserIdDisplay: (address: string) => string;
+  getUserIdDisplay: (address: string) => void;
   reset: () => void;
 }
 
@@ -199,7 +199,7 @@ export const useDistributionStore = create<DistributionState>((set, get) => ({
     return Array.from(addresses);
   },
 
-  getUserIdDisplay: (address) => {
+  getUserIdDisplay: async (address) => {
     const { addressIds, isLoadingIds } = get();
     if (isLoadingIds.has(address)) return "Loading...";
     return addressIds[address] || addressToId(address);

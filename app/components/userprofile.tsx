@@ -208,7 +208,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             title = "New Registration";
             message = `ID ${fromAddress} registered in Matrix ${matrixDisplay} - Amount: ${formatAmount(
               entry.amount
-            )} BUSD`;
+            )} USD`;
             type = "success";
           } else {
             title = "Level Upgrade";

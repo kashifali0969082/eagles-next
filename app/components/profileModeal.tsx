@@ -9,6 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 import { isUserExists } from "@/config/Method";
 import { toast, ToastContainer } from "react-toastify";
+
 // Profile Modal Component
 export const ProfileModal: React.FC<{
   isOpen: boolean;
@@ -19,14 +20,14 @@ export const ProfileModal: React.FC<{
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const userProfile = useProfileStore.getState().profile;
-  const pathname = usePathname(); // Get current route
+  const pathname = usePathname();
 
   const [formData, setFormData] = useState({
     id: userProfile?.id || "",
     name: userProfile?.name || "",
     email: userProfile?.email || "",
     description: userProfile?.description || "",
-    walletAddress: userProfile?.walletAddress || address || "",
+    walletAddress: address || "",
     profileImage: userProfile?.profileImage || "",
     socialLinks: {
       facebook: userProfile?.socialLinks?.facebook || "",
@@ -43,39 +44,36 @@ export const ProfileModal: React.FC<{
   const [extUser, setExtUser] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check if user exists in blockchain
-  const CheckForUser = async (address: string) => {
+  // Check if user profile exists (not just blockchain check)
+  const checkUserProfile = async (address: string) => {
     try {
+      // Check if user exists in blockchain
       let boo = await isUserExists(address);
       setExtUser(boo as boolean);
-      if (boo === true) {
-        // User exists in blockchain, can proceed
-      } else {
-        if (!pathname.startsWith("/IdSearch")) {
-          console.log("boo this else works");
-          router.push("/register");
-        }
+      
+      if (!boo && !pathname.startsWith("/IdSearch")) {
+        router.push("/register");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error checking user:", error);
     }
   };
 
   useEffect(() => {
     if (address && isConnected) {
-      CheckForUser(address);
+      checkUserProfile(address);
       setFormData((prev) => ({ ...prev, walletAddress: address }));
     }
   }, [isConnected, address]);
 
   useEffect(() => {
-    if (userProfile) {
+    if (userProfile && address) {
       setFormData({
         id: userProfile.id || "",
         name: userProfile.name || "",
         email: userProfile.email || "",
         description: userProfile.description || "",
-        walletAddress: userProfile.walletAddress || address || "",
+        walletAddress: address, // Always use connected wallet address
         profileImage: userProfile.profileImage || "",
         socialLinks: {
           facebook: userProfile.socialLinks?.facebook || "",
@@ -107,13 +105,21 @@ export const ProfileModal: React.FC<{
     }
   };
 
-  // Convert file to base64
+  // Improved base64 conversion with better error handling
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Ensure we have a proper base64 string
+        if (result && result.startsWith('data:')) {
+          resolve(result);
+        } else {
+          reject(new Error('Failed to convert image to base64'));
+        }
+      };
+      reader.onerror = () => reject(new Error('FileReader error'));
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (err) => reject(err);
     });
   };
 
@@ -122,26 +128,49 @@ export const ProfileModal: React.FC<{
     if (!file) return;
 
     try {
-      // Check file size
-      if (file.size > 1024 * 1024 * 1) {
-        alert("Image too large. Select a file under 1MB.");
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select a valid image file");
         return;
       }
 
+      // Check file size (1MB limit)
+      if (file.size > 1024 * 1024) {
+        toast.error("Image too large. Please select a file under 1MB.");
+        return;
+      }
+
+      setIsLoading(true);
+      toast.info("Processing image...");
+
       // Compress the image
       const compressedFile = await imageCompression(file, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1024,
+        maxSizeMB: 0.8, // Slightly lower to ensure we stay under 1MB
+        maxWidthOrHeight: 800, // Reasonable size for profile images
         useWebWorker: true,
+        fileType: 'image/jpeg', // Convert to JPEG for better compression
+        initialQuality: 0.8
       });
+
+      console.log('Original file size:', file.size);
+      console.log('Compressed file size:', compressedFile.size);
 
       // Convert compressed image to Base64
       const base64 = await convertToBase64(compressedFile);
-      setImagePreview(base64);
-      setFormData((prev) => ({ ...prev, profileImage: base64 }));
+      
+      // Verify base64 string is valid
+      if (base64 && base64.length > 0) {
+        setImagePreview(base64);
+        setFormData((prev) => ({ ...prev, profileImage: base64 }));
+        toast.success("Image processed successfully");
+      } else {
+        throw new Error('Failed to process image');
+      }
     } catch (error) {
       console.error("Image processing failed:", error);
-      alert("Failed to process image. Please try again.");
+      toast.error("Failed to process image. Please try a different image.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,18 +178,24 @@ export const ProfileModal: React.FC<{
     e.preventDefault();
     setIsLoading(true);
 
-    if (!address) {
-      alert("Please connect your wallet first.");
+    if (!address || !isConnected) {
+      toast.error("Please connect your wallet first.");
       setIsLoading(false);
       return;
     }
 
-    // Format social links for API (convert from object to nested object)
+    // Basic validation
+    if (!formData.name.trim()) {
+      toast.error("Name is required");
+      setIsLoading(false);
+      return;
+    }
+
+    // Format social links - only include non-empty URLs
     const formattedSocialLinks = Object.entries(formData.socialLinks).reduce(
       (acc, [platform, url]) => {
-        if (url) {
-          // Only include non-empty URLs
-          acc[platform.toLowerCase()] = url;
+        if (url && url.trim()) {
+          acc[platform.toLowerCase()] = url.trim();
         }
         return acc;
       },
@@ -168,46 +203,66 @@ export const ProfileModal: React.FC<{
     );
 
     const userData = {
-      name: formData.name,
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      description: formData.description.trim(),
+      walletAddress: address, // Always use connected wallet
       profileImage: formData.profileImage,
-      email: formData.email,
-      description: formData.description,
-      walletAddress: address,
       socialLinks: formattedSocialLinks,
     };
 
     try {
       let response;
-      if (
-        userProfile?.id ||
-        userProfile.description ||
-        userProfile.name ||
-        userProfile.profileImage ||
-        userProfile.socialLinks
-      ) {
+      
+      console.log('Current userProfile:', userProfile);
+      console.log('Sending userData:', userData);
+      
+      // First, try to check if profile exists on backend using the correct route
+      let profileExists = false;
+      try {
+        const checkResponse = await axios.get(`${ApiUrl}/user/profile/${address}`);
+        profileExists = checkResponse.status === 200;
+        console.log('Profile exists on backend:', profileExists);
+      } catch (checkError) {
+        // Profile doesn't exist (404 is expected)
+        profileExists = false;
+        console.log('Profile does not exist on backend');
+      }
+
+      if (profileExists) {
+        // Update existing profile
+        console.log('Updating existing profile...');
         response = await axios.post(`${ApiUrl}/profile-upgradation`, userData);
-        toast.success("Profile upgraded successfully");
+        toast.success("Profile updated successfully!");
       } else {
-        response = await axios.post(`${ApiUrl}/api/profile`, userData);
-        toast.success("Profile created successfully");
+        // Create new profile - wallet address goes in URL, other data in body
+        console.log('Creating new profile...');
+        const { walletAddress, ...profileDataWithoutWallet } = userData;
+        response = await axios.post(`${ApiUrl}/api/profile/${address}`, profileDataWithoutWallet);
+        toast.success("Profile created successfully!");
       }
 
       if (response.status === 200 || response.status === 201) {
-        onSave(formData);
-        useProfileStore.getState().setProfile(formData);
+        // Update the form data with response data if available
+        const updatedProfile = response.data?.data || userData;
+        onSave(updatedProfile);
+        useProfileStore.getState().setProfile(updatedProfile);
         onClose();
       } else {
-        toast.error("File size is too large");
+        throw new Error('Unexpected response status');
       }
-    } catch (error: unknown) {
-      toast.error("Failed to save profile. Please try again.");
-      if (error instanceof Error) {
-        console.error(
-          "Error saving profile:",
-          (error as any).response?.data || error.message
-        );
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      
+      // Handle specific error messages
+      if (error.response?.status === 413) {
+        toast.error("Image file is too large. Please use a smaller image.");
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message?.includes('Network Error')) {
+        toast.error("Network error. Please check your connection and try again.");
       } else {
-        console.error("An unexpected error occurred:", error);
+        toast.error("Failed to save profile. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -243,7 +298,7 @@ export const ProfileModal: React.FC<{
       <div className="h-[73%] lg:h-[80%] overflow-scroll no-scrollbar bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-lg border border-yellow-500/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-gradient-to-r from-gray-900/95 to-black/95 backdrop-blur-lg border-b border-gray-700 p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white">
-            {userProfile ? "Update Profile" : "Create Profile"}
+            {userProfile?.id ? "Update Profile" : "Create Profile"}
           </h2>
           <button
             onClick={onClose}
@@ -280,8 +335,9 @@ export const ProfileModal: React.FC<{
                 />
               </label>
             </div>
-            <p className="text-gray-400 text-sm">
-              Click the upload icon to change profile picture (Max 1MB)
+            <p className="text-gray-400 text-sm text-center">
+              Click the upload icon to change profile picture<br />
+              <span className="text-xs">(Max 1MB, JPG/PNG recommended)</span>
             </p>
           </div>
 
@@ -289,7 +345,7 @@ export const ProfileModal: React.FC<{
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-gray-300 text-sm font-medium mb-2">
-                Name
+                Name *
               </label>
               <input
                 type="text"
@@ -299,6 +355,7 @@ export const ProfileModal: React.FC<{
                 className="w-full bg-gray-800/50 border border-gray-600 text-white rounded-lg px-4 py-3 focus:border-yellow-500 focus:outline-none transition-colors"
                 placeholder="Enter your name"
                 disabled={isLoading}
+                required
               />
             </div>
 
@@ -314,20 +371,6 @@ export const ProfileModal: React.FC<{
                 className="w-full bg-gray-800/50 border border-gray-600 text-white rounded-lg px-4 py-3 focus:border-yellow-500 focus:outline-none transition-colors"
                 placeholder="Enter your email"
                 disabled={isLoading}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-gray-300 text-sm font-medium mb-2">
-                Wallet Address *
-              </label>
-              <input
-                type="text"
-                name="walletAddress"
-                value={formData.walletAddress}
-                readOnly
-                className="w-full bg-gray-700/50 border border-gray-600 text-gray-300 rounded-lg px-4 py-3 font-mono text-sm cursor-not-allowed"
-                placeholder="Connect wallet to see address"
               />
             </div>
           </div>
@@ -396,7 +439,7 @@ export const ProfileModal: React.FC<{
               <span>
                 {isLoading
                   ? "Saving..."
-                  : userProfile
+                  : userProfile?.id
                   ? "Update Profile"
                   : "Create Profile"}
               </span>

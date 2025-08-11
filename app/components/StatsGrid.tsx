@@ -66,21 +66,21 @@ export const StatsGrid: React.FC = () => {
         title="Daily Profit"
         value={`$${hr24Profit.toLocaleString()}`}
         icon={<TrendingUp className="w-4 h-4 lg:w-6 lg:h-6 text-black" />}
-        gradient="from-yellow-400 to-amber-500"
+        gradient=" from-teal-400 to-cyan-500"
       />
       <DualStatCard
         title="Partners"
         primaryValue={partners.toString()}
         secondaryValue={hr24partners.toString()} // Replace with your actual secondary value or variable
         icon={<Users className="w-4 h-4 lg:w-6 lg:h-6 text-black" />}
-        gradient="from-yellow-400 to-amber-500"
+        gradient="from-emerald-400 to-green-500"
       />
       <DualStatCard
         title="Team Members"
         primaryValue={team.toString()}
         secondaryValue={hr24team.toString()} // Replace with your actual secondary value or variable
         icon={<Users className="w-4 h-4 lg:w-6 lg:h-6 text-black" />}
-        gradient="from-yellow-400 to-amber-500"
+        gradient="from-purple-400 to-pink-500"
       />
     </div>
   );
