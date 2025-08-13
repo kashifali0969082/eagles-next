@@ -25,7 +25,7 @@ import {
 } from "@/store/userCounterStore";
 import { useEntriesStore } from "@/store/notification";
 import axios from "axios";
-import { ApiUrl } from "@/config/exports";
+import { ApiUrl, usdtdecimals } from "@/config/exports";
 import { users } from "@/config/Method";
 // Type definitions
 interface UserProfile {
@@ -245,7 +245,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   // Helper function to format amount (assuming it's in wei or similar)
   const formatAmount = (amount: number) => {
-    return (amount / 1000000).toFixed(1); // Convert to readable format
+    return (amount / usdtdecimals).toFixed(1); // Convert to readable format
   };
 
   // Helper function to format date
@@ -344,15 +344,15 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                         <h3 className="text-white font-semibold text-sm truncate">
                           {notification.title}
                         </h3>
-                        <span className="text-xs text-slate-400 ml-2">
+                        {/* <span className="text-xs text-slate-400 ml-2">
                           Click for details
-                        </span>
+                        </span> */}
                       </div>
-                      <p className="text-slate-300 text-sm mb-2 leading-relaxed">
+                      <p className="text-white text-sm mb-2 leading-relaxed">
                         {notification.message}
                       </p>
                       <div className="flex items-center justify-between">
-                        <p className="text-slate-500 text-xs">
+                        <p className="text-white text-xs">
                           {notification.timestamp}
                         </p>
                         {notification.originalData?.matrix && (

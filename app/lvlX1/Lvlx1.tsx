@@ -189,7 +189,6 @@ const Levelx1Enhanced: React.FC = () => {
             const isNextLevel: boolean = level.level === activeLevel + 1;
             const isSelected: boolean = selectedLevel === level.level;
             const slotFilled: number = level.slots[0];
-
             return (
               <div
                 key={level.level}

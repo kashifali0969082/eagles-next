@@ -1,4 +1,5 @@
 // utils/distributionUtils.ts
+import { usdtdecimals } from '@/config/exports';
 import { DistributionTransaction, TransactionType } from './types';
 
 // Function to convert address to a shorter display format (fallback)
@@ -31,7 +32,7 @@ export const getMatrixDisplay = (tx: DistributionTransaction): string => {
 // Function to format amount (assuming it's in wei or smallest unit)
 export const formatAmount = (amount: number): string => {
   // Assuming the amount needs to be divided by 1000000 (adjust based on your token decimals)
-  return (amount / 1000000).toFixed(2);
+  return (amount / usdtdecimals).toFixed(2);
 };
 
 // Function to format timestamp

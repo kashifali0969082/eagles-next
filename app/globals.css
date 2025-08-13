@@ -1,6 +1,68 @@
 @import "tailwindcss";
 
 :root {
+  /* Always dark */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --color-background: var(--background);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Yellow progress bar */
+.Toastify__progress-bar {
+  background: #facc15 !important; /* yellow-400 */
+}
+
+/* Yellow X button (close) */
+.Toastify__close-button {
+  color: #facc15 !important;
+  opacity: 1 !important;
+}
+
+.Toastify__close-button:hover {
+  color: #fde047 !important; /* yellow-300 on hover */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+#tsparticles {
+  height: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* @import "tailwindcss";
+
+:root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -25,28 +87,26 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Yellow progress bar */
 .Toastify__progress-bar {
-  background: #facc15 !important; /* yellow-400 */
+  background: #facc15 !important; 
 }
 
-/* Yellow X button (close) */
 .Toastify__close-button {
   color: #facc15 !important;
   opacity: 1 !important;
 }
 
 .Toastify__close-button:hover {
-  color: #fde047 !important; /* yellow-300 on hover */
+  color: #fde047 !important; 
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
+  display: none; 
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
 }
 #tsparticles{
 height: "100%";
-}
+}  */

@@ -42,15 +42,25 @@ const DistributionTable: React.FC = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "reward":
-        return <Coins className="w-6 h-6 text-green-400 bg-green-400/20 p-1 rounded-lg" />;
+        return (
+          <Coins className="w-6 h-6 text-green-400 bg-green-400/20 p-1 rounded-lg" />
+        );
       case "matrix":
-        return <TrendingUp className="w-6 h-6 text-purple-400 bg-purple-400/20 p-1 rounded-lg" />;
+        return (
+          <TrendingUp className="w-6 h-6 text-purple-400 bg-purple-400/20 p-1 rounded-lg" />
+        );
       case "registration":
-        return <UserPlus className="w-6 h-6 text-blue-400 bg-blue-400/20 p-1 rounded-lg" />;
+        return (
+          <UserPlus className="w-6 h-6 text-blue-400 bg-blue-400/20 p-1 rounded-lg" />
+        );
       case "distribution":
-        return <Coins className="w-6 h-6 text-yellow-400 bg-yellow-400/20 p-1 rounded-lg" />;
+        return (
+          <Coins className="w-6 h-6 text-yellow-400 bg-yellow-400/20 p-1 rounded-lg" />
+        );
       default:
-        return <Zap className="w-6 h-6 text-gray-400 bg-gray-400/20 p-1 rounded-lg" />;
+        return (
+          <Zap className="w-6 h-6 text-gray-400 bg-gray-400/20 p-1 rounded-lg" />
+        );
     }
   };
 
@@ -88,8 +98,7 @@ const DistributionTable: React.FC = () => {
     }
   };
 
-
-    const aDDabrar = async (address: string) => {
+  const aDDabrar = async (address: string) => {
     try {
       let val = (await users(address)) as [
         string,
@@ -101,7 +110,7 @@ const DistributionTable: React.FC = () => {
         BigInt
       ];
       console.log("val val val", val);
-      return Number(val[1])
+      return Number(val[1]);
     } catch (error) {
       console.log("error while searching by address", error);
     }
@@ -112,11 +121,17 @@ const DistributionTable: React.FC = () => {
     const now = new Date().getTime();
     const txTime = new Date(timestamp).getTime();
     const diffInMinutes = Math.floor((now - txTime) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return "just now";
-    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'}`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hour${Math.floor(diffInMinutes / 60) === 1 ? '' : 's'}`;
-    return `${Math.floor(diffInMinutes / 1440)} day${Math.floor(diffInMinutes / 1440) === 1 ? '' : 's'}`;
+    if (diffInMinutes < 60)
+      return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"}`;
+    if (diffInMinutes < 1440)
+      return `${Math.floor(diffInMinutes / 60)} hour${
+        Math.floor(diffInMinutes / 60) === 1 ? "" : "s"
+      }`;
+    return `${Math.floor(diffInMinutes / 1440)} day${
+      Math.floor(diffInMinutes / 1440) === 1 ? "" : "s"
+    }`;
   };
 
   return (
@@ -152,7 +167,7 @@ const DistributionTable: React.FC = () => {
         {filteredTransactions.map((tx) => {
           const transactionType = getTransactionType(tx);
           const isNewUser = transactionType === "registration";
-          
+
           return (
             <div
               key={tx._id}
@@ -171,25 +186,25 @@ const DistributionTable: React.FC = () => {
                     <>
                       <div className="flex items-center space-x-2">
                         <User className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-300 text-sm">new user joined</span>
+                        <span className="text-gray-300 text-sm">
+                          new user joined
+                        </span>
                       </div>
-                      <div 
+                      <div
                         onClick={() => searchfunction(tx.to)}
                         className="text-blue-400 font-semibold cursor-pointer hover:text-blue-300"
                       >
-                        ID ${tx.to.slice(0, 6)}...${tx.to.slice(-4)}
-
+                        ADD: {tx.to.slice(0, 6)}...{tx.to.slice(-4)}
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="flex items-center space-x-3 mb-1">
-                        <div 
+                        <div
                           onClick={() => searchfunction(tx.to)}
                           className="text-blue-400 font-semibold cursor-pointer hover:text-blue-300"
                         >
-                          ID {tx.to.slice(0, 6)}...{tx.to.slice(-4)}
-
+                          ADD: {tx.to.slice(0, 6)}...{tx.to.slice(-4)}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 text-sm">
@@ -241,23 +256,6 @@ const DistributionTable: React.FC = () => {
 };
 
 export default DistributionTable;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // "use client";
 // import React, { useEffect, useState } from "react";

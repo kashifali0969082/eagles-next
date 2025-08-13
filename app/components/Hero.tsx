@@ -10,21 +10,22 @@ export const Hero: React.FC = () => {
   const { totalUsers} = useStatsStore();
 
   const mlmTipsAndQuotes = [
-    "🚀 Success in MLM is about consistency, not luck.",
-    "💡 Your network is your net worth.",
-    "🔥 Talk to people every day — the fortune is in the follow-up.",
-    "🧠 Learn daily, grow weekly, earn monthly.",
-    "💬 Every 'no' brings you closer to a 'yes'.",
-    "🎯 Don't aim for perfection, aim for progress.",
-    "🏗️ Build relationships, not just downlines.",
-    "📈 Your success depends on how many people you help succeed.",
-    "🕒 You're not late. You're just getting started.",
-    "💎 Consistency turns average people into legends.",
-    "🧭 Leadership is not a title, it's influence.",
-    "🛠️ Tools work when you work the tools.",
-    "🌱 Grow your mindset and your income will follow.",
-    "🗣️ Speak with belief, act with purpose.",
-    "🌐 Your next superstar might be one message away.",
+    // "🚀 Success in MLM is about consistency, not luck.",
+    // "💡 Your network is your net worth.",
+    // "🔥 Talk to people every day — the fortune is in the follow-up.",
+    // "🧠 Learn daily, grow weekly, earn monthly.",
+    // "💬 Every 'no' brings you closer to a 'yes'.",
+    // "🎯 Don't aim for perfection, aim for progress.",
+    // "🏗️ Build relationships, not just downlines.",
+    // "📈 Your success depends on how many people you help succeed.",
+    // "🕒 You're not late. You're just getting started.",
+    // "💎 Consistency turns average people into legends.",
+    // "🧭 Leadership is not a title, it's influence.",
+    // "🛠️ Tools work when you work the tools.",
+    // "🌱 Grow your mindset and your income will follow.",
+    // "🗣️ Speak with belief, act with purpose.",
+    // "🌐 Your next superstar might be one message away.",
+    "You can put ID and you will get funds too But data is loading You will get everything right after some time Sorry for the inconvenience"
   ];
 
   useEffect(() => {

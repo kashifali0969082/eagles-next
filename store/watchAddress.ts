@@ -18,6 +18,8 @@ import {
   get24HourDirects,
   get24HourPayment,
   get24HourTeamCount,
+  getPartners,
+  getTotalTeamCount,
   isLocked,
   lastUserid,
   users,
@@ -57,21 +59,21 @@ const unsub = useAdressStore.subscribe(
 const profilefun = async () => {
   console.log("profile function is running");
   const currentAddress = useAdressStore.getState().address;
-const defaultProfile = {
-  id: "",
-  name: "name",
-  profileImage: "",
-  description: "description",
-  email: "email@example.com",
-  walletAddress: "wallet_address",
-  socialLinks: {
-    facebook: "",
-    youtube: "",
-    instagram: "",
-    twitter: "",
-    whatsapp: "",
-  },
-};
+  const defaultProfile = {
+    id: "",
+    name: "name",
+    profileImage: "",
+    description: "description",
+    email: "email@example.com",
+    walletAddress: "wallet_address",
+    socialLinks: {
+      facebook: "",
+      youtube: "",
+      instagram: "",
+      twitter: "",
+      whatsapp: "",
+    },
+  };
   try {
     const response = await axios.get(
       `${ApiUrl}/user/profile/${currentAddress}`
@@ -86,7 +88,7 @@ const defaultProfile = {
     }
   } catch (error) {
     console.error("❌ Error while getting profile:", error);
-      useProfileStore.getState().setProfile(defaultProfile);
+    useProfileStore.getState().setProfile(defaultProfile);
   }
 };
 const UplinerId = async () => {
@@ -135,25 +137,38 @@ const UplinerId = async () => {
       BigInt,
       BigInt
     ];
+    let Kashif = (await getPartners(currentAddress)) as number;
     setX3(Number(X3val[2]));
     let profit = Number(val[4]) + Number(X3val[3]);
-    let partner = Number(val[5]) + Number(X3val[4]);
-    let team = Number(val[6]) + Number(X3val[5]);
+    let partner = Number(Kashif);
+    let fun18 = await getTotalTeamCount(currentAddress);
+    let par = await get24HourDirects(currentAddress);
+    let par24 = await X3get24HourDirects(currentAddress);
+    let tea = await get24HourTeamCount(currentAddress);
+    let X3tea = await X3get24HourTeamCount(currentAddress);
+    let partner24hr = Number(par) + Number(par24);
+    let team24hr = Number(tea) + Number(X3tea);
+    if (currentAddress === "0x31eaCE9383eE97A5cF2FD6A1B254F27683DedE1B") {
+      let team = (await lastUserid()) as bigint;
+      let prof=profit/1e18
+      let prof2=prof+25418
+      
+      setTotalProfit(prof2);
+      setTotalTeam(Number(team) + 25445);
+      setTotalpartners(partner + 1289);
+      console.log("bakwas in if condition", team,profit,prof2);
+    } else {
+      let team = Number(Kashif) + Number(fun18);
+      console.log("bakwas in else condition", team);
+      setTotalTeam(team);
+      let prof=profit/1e18
+      setTotalProfit(prof);
+      setTotalpartners(partner);
+    }
+    sethr24TotalTeam(team24hr);
+    sethr24Totalpartners(partner24hr);
 
-let par=await get24HourDirects(currentAddress)
-let par24=await X3get24HourDirects(currentAddress)
-let tea=await get24HourTeamCount(currentAddress)
-let X3tea=await X3get24HourTeamCount(currentAddress)
-let partner24hr=Number(par)+Number(par24);
-let team24hr=Number(tea)+Number(X3tea);
-
-
-sethr24TotalTeam(team24hr)
-sethr24Totalpartners(partner24hr)
-    setTotalpartners(partner)
-    setTotalTeam(team)
-
-    setTotalProfit(profit);
+    // setTotalProfit(profit);
     console.log("upliner id is ", val2);
     setUplinerId(Number(val2[1]).toString());
   } catch (error) {

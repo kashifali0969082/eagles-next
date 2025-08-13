@@ -11,6 +11,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import React from "react";
 import {
   useProfileStore,
@@ -51,10 +52,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
-  const UplinerId = useUplinerStore((state) => state.uplinerId);
-  const userId = useUserId((state) => state.userIDper);
-  const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const UplinerId = useUplinerStore((state) => state.uplinerId);
+  const userId = id;
+  const router = useRouter();
   console.log("upliner ,user  id  ", UplinerId, userId);
 
   return (

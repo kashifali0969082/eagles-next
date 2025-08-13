@@ -202,7 +202,7 @@ const Levelx2Enhanced: React.FC = () => {
         </div>
 
         {/* Levels Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {levels.map((level: Level) => {
             const isActive: boolean = level.level <= activeLevel;
             const isNextLevel: boolean = level.level === activeLevel + 1;

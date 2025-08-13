@@ -1,5 +1,10 @@
 import { users } from "@/config/Method";
-import { Transaction, ProcessedTransaction, TransactionTypeCategory } from "./types";
+import {
+  Transaction,
+  ProcessedTransaction,
+  TransactionTypeCategory,
+} from "./types";
+import { usdtdecimals } from "@/config/exports";
 
 // Function to validate Ethereum address
 export const isValidAddress = (address: string): boolean => {
@@ -25,10 +30,7 @@ export const formatTimestamp = (timestamp: bigint): string => {
         second: "2-digit",
         hour12: false,
       })
-      .replace(
-        /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2})/,
-        "$3-$1-$2 $4"
-      );
+      .replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2})/, "$3-$1-$2 $4");
   } catch (error) {
     return "Invalid Date";
   }
@@ -38,7 +40,7 @@ export const formatTimestamp = (timestamp: bigint): string => {
 export const formatAmount = (amount: bigint): string => {
   try {
     // Convert from wei to token amount (assuming 6 decimals based on 5000000)
-    const divisor = BigInt(1000000); // 10^6
+    const divisor = BigInt(usdtdecimals); // 10^6
     const tokenAmount = Number(amount) / Number(divisor);
     return tokenAmount.toFixed(2);
   } catch (error) {
@@ -56,7 +58,7 @@ export const extractLevel = (
   if (contractType === "x3") {
     return "X3";
   }
-  
+
   if (transactionType.includes("Registration")) return "X1/X2"; // Default registration to X1
 
   // For X1/X2 contracts, first try to extract level from transaction type description
@@ -64,8 +66,10 @@ export const extractLevel = (
     const levelMatch = transactionType.match(/Level\s*(\d+)/i);
     if (levelMatch) {
       const levelNum = parseInt(levelMatch[1]);
-      if (levelNum === 1 && transactionType.includes("Registration")) return "X1/X2";
-      if (levelNum === 2 && transactionType.includes("Registration")) return "X1/X2";
+      if (levelNum === 1 && transactionType.includes("Registration"))
+        return "X1/X2";
+      if (levelNum === 2 && transactionType.includes("Registration"))
+        return "X1/X2";
       if (levelNum === 1) return "X1/X2";
       if (levelNum === 2) return "X2/X2";
     }
@@ -90,13 +94,12 @@ export const extractLevel = (
 };
 
 // Function to determine transaction type category
-export const getTransactionTypeCategory = (transactionType: string): TransactionTypeCategory => {
+export const getTransactionTypeCategory = (
+  transactionType: string
+): TransactionTypeCategory => {
   if (transactionType.includes("Registration")) return "registration";
   if (transactionType.includes("Activation")) return "upgrade";
-  if (
-    transactionType.includes("Reward") ||
-    transactionType.includes("Payout")
-  )
+  if (transactionType.includes("Reward") || transactionType.includes("Payout"))
     return "reward";
   return "transaction";
 };

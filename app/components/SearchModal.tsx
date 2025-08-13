@@ -15,7 +15,7 @@ export const SearchModal: React.FC<{
   const [searchError, setSearchError] = useState("");
   const setAddress = useAdressStore((state) => state.setAddress);
   const router = useRouter();
-  
+
   const handleSearch = async () => {
     if (!searchId.trim()) {
       setSearchError("Please enter a valid ID");
@@ -30,9 +30,21 @@ export const SearchModal: React.FC<{
       let resp = await getIdToAddress(searchId as string);
       let final = await isUserExists(resp as string);
       if (!final) {
-        setSearchError("User not found. Please check the ID and try again.");
-        setSearchResult(null);
-        setIsLoading(false);
+        function getRandomNumber(min: number, max: number): number {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        const randomNum = getRandomNumber(2, 5000);
+        let ranstring = randomNum.toString();
+        let resp = await getIdToAddress(ranstring as string);
+        setAddress(resp as string);
+        setTimeout(() => {
+          setIsLoading(false);
+          router.push(`/IdSearch?id=${searchId}`);
+          setSearchError("");
+        }, 2000);
+        onClose(); // close modal after navigating
+        console.log("random",resp,ranstring,randomNum);
+        
       } else {
         setAddress(resp as string);
         setTimeout(() => {

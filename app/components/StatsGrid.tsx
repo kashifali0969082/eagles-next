@@ -1,5 +1,5 @@
 "use client";
-import { DollarSign, TrendingUp, Users } from "lucide-react";
+import { DollarSign, TrendingUp, Users,MoveUp } from "lucide-react";
 import { dashboardStatsStore } from "@/store/userCounterStore";
 import { mainnetDecimals, usdtdecimals } from "@/config/exports";
 
@@ -7,7 +7,7 @@ export const StatsGrid: React.FC = () => {
   const { totalProfit, hr24Profit, partners, team, hr24partners, hr24team } =
     dashboardStatsStore();
 
-  console.log("stats =", hr24Profit);
+  console.log("bakwas", totalProfit);
 
   const StatCard: React.FC<{
     title: string;
@@ -45,7 +45,7 @@ export const StatsGrid: React.FC = () => {
           {primaryValue}
         </p>
         <div className="flex items-center justify-center lg:justify-end gap-1">
-          <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 text-green-500" />
+          <MoveUp className="w-5 h-5 lg:w-4 lg:h-4 text-green-500" />
           <span className="text-xs lg:text-sm font-semibold text-green-500">
             {secondaryValue}
           </span>
@@ -58,9 +58,9 @@ export const StatsGrid: React.FC = () => {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-4 lg:mb-8">
       <StatCard
         title="Total Profit"
-        value={`$${(totalProfit / usdtdecimals).toLocaleString()}`}
+        value={`$${(totalProfit).toLocaleString()}`}
         icon={<DollarSign className="w-4 h-4 lg:w-6 lg:h-6 text-black" />}
-        gradient="from-yellow-400 to-amber-500"
+        gradient="from-blue-400 to-blue-500"
       />
       <StatCard
         title="Daily Profit"
